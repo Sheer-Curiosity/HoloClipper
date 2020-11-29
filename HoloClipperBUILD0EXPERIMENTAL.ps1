@@ -10,93 +10,96 @@
 #This script both creates the 3 second black screen and stitches it between each mini-clip.
 #It also places all the original mini-clips in a new folder titled "originals" in the working directory
 $HoloStitcher = {
-    $vidcount = read-host -prompt 'Number Of Videos (2-10)'
+    do {
+        $vidcount = read-host -prompt 'Number Of Miniclips [2-10]'
+    }
+    until ($vidcount -eq 2 -or $vidcount -eq 3 -or $vidcount -eq 4 -or $vidcount -eq 5 -or $vidcount -eq 6 -or $vidcount -eq 7 -or $vidcount -eq 8 -or $vidcount -eq 9 -or $vidcount -eq 10)
     $resolution = read-host -prompt 'Video Resolution (1080, 720, 480, 360)'
     $fulltitle = read-host -prompt 'Clip Number'
     write-host "Creating Black Screen..." -NoNewLine
     $vidcount = [int]$vidcount
     $resolution = [int]$resolution
     if ($resolution -eq 1080) {
-        ffmpeg -hide_banner -loglevel error -f lavfi -i color=black:s=1920x1080:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 blackscreen.mkv
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -f lavfi -i color=black:s=1920x1080:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 ".\output\blackscreen.mkv"
     }
     if ($resolution -eq 720) {
-        ffmpeg -hide_banner -loglevel error -f lavfi -i color=black:s=1280x720:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 blackscreen.mkv
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -f lavfi -i color=black:s=1280x720:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 ".\output\blackscreen.mkv"
     }
     if ($resolution -eq 480) {
-        ffmpeg -hide_banner -loglevel error -f lavfi -i color=black:s=854x480:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 blackscreen.mkv
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -f lavfi -i color=black:s=854x480:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 ".\output\blackscreen.mkv"
     }
     if ($resolution -eq 360) {
-        ffmpeg -hide_banner -loglevel error -f lavfi -i color=black:s=640x360:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 blackscreen.mkv
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -f lavfi -i color=black:s=640x360:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 ".\output\blackscreen.mkv"
     }
     write-host "`rBlack Screen Created..." -NoNewLine
-    mkdir ".\originals" | Out-Null
+    mkdir ".\output\originals" | Out-Null
     #These check if each clip file exists, and if so, moves them to the ./originals folder
-    if (test-path ".\clip1.mkv" -pathtype leaf) {
-        move-item -path ".\clip1.mkv" -destination ".\originals\clip1.mkv"
+    if (test-path ".\output\clip1.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip1.mkv" -destination ".\output\originals\clip1.mkv"
     }
-    if (test-path ".\clip2.mkv" -pathtype leaf) {
-        move-item -path ".\clip2.mkv" -destination ".\originals\clip2.mkv"
+    if (test-path ".\output\clip2.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip2.mkv" -destination ".\output\originals\clip2.mkv"
     }
-    if (test-path ".\clip3.mkv" -pathtype leaf) {
-        move-item -path ".\clip3.mkv" -destination ".\originals\clip3.mkv"
+    if (test-path ".\output\clip3.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip3.mkv" -destination ".\output\originals\clip3.mkv"
     }
-    if (test-path ".\clip4.mkv" -pathtype leaf) {
-        move-item -path ".\clip4.mkv" -destination ".\originals\clip4.mkv"
+    if (test-path ".\output\clip4.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip4.mkv" -destination ".\output\originals\clip4.mkv"
     }
-    if (test-path ".\clip5.mkv" -pathtype leaf) {
-        move-item -path ".\clip5.mkv" -destination ".\originals\clip5.mkv"
+    if (test-path ".\output\clip5.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip5.mkv" -destination ".\output\originals\clip5.mkv"
     }
-    if (test-path ".\clip6.mkv" -pathtype leaf) {
-        move-item -path ".\clip6.mkv" -destination ".\originals\clip6.mkv"
+    if (test-path ".\output\clip6.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip6.mkv" -destination ".\output\originals\clip6.mkv"
     }
-    if (test-path ".\clip7.mkv" -pathtype leaf) {
-        move-item -path ".\clip7.mkv" -destination ".\originals\clip7.mkv"
+    if (test-path ".\output\clip7.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip7.mkv" -destination ".\output\originals\clip7.mkv"
     }
-    if (test-path ".\clip8.mkv" -pathtype leaf) {
-        move-item -path ".\clip8.mkv" -destination ".\originals\clip8.mkv"
+    if (test-path ".\output\clip8.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip8.mkv" -destination ".\output\originals\clip8.mkv"
     }
-    if (test-path ".\clip9.mkv" -pathtype leaf) {
-        move-item -path ".\clip9.mkv" -destination ".\originals\clip9.mkv"
+    if (test-path ".\output\clip9.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip9.mkv" -destination ".\output\originals\clip9.mkv"
     }
-    if (test-path ".\clip10.mkv" -pathtype leaf) {
-        move-item -path ".\clip10.mkv" -destination ".\originals\clip10.mkv"
+    if (test-path ".\output\clip10.mkv" -pathtype leaf) {
+        move-item -path ".\output\clip10.mkv" -destination ".\output\originals\clip10.mkv"
     }
     #There was definitely a better way to stitch clips than this, but I was strapped for time.
     Write-Host "`rJoining Clips..." -NoNewLine
     if ($vidcount -eq 2) {
-        ffmpeg -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0]concat=n=3:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "clip$fulltitle.mkv"
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0]concat=n=3:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
     if ($vidcount -eq 3) {
-        ffmpeg -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0]concat=n=5:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "clip$fulltitle.mkv"
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0]concat=n=5:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
     if ($vidcount -eq 4) {
-        ffmpeg -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0]concat=n=7:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "clip$fulltitle.mkv"
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0]concat=n=7:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
     if ($vidcount -eq 5) {
-        ffmpeg -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0]concat=n=9:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "clip$fulltitle.mkv"
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0]concat=n=9:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
     if ($vidcount -eq 6) {
-        ffmpeg -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0]concat=n=11:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "clip$fulltitle.mkv"
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0]concat=n=11:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
     if ($vidcount -eq 7) {
-        ffmpeg -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -i blackscreen.mkv -i ".\originals\clip7.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0]concat=n=13:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "clip$fulltitle.mkv"
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -i blackscreen.mkv -i ".\originals\clip7.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0]concat=n=13:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
     if ($vidcount -eq 8) {
-        ffmpeg -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -i blackscreen.mkv -i ".\originals\clip7.mkv" -i blackscreen.mkv -i ".\originals\clip8.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0]concat=n=15:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "clip$fulltitle.mkv"
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -i blackscreen.mkv -i ".\originals\clip7.mkv" -i blackscreen.mkv -i ".\originals\clip8.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0]concat=n=15:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
     if ($vidcount -eq 9) {
-        ffmpeg -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -i blackscreen.mkv -i ".\originals\clip7.mkv" -i blackscreen.mkv -i ".\originals\clip8.mkv" -i blackscreen.mkv -i ".\originals\clip9.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0][15:v:0][15:a:0][16:v:0][16:a:0]concat=n=17:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "clip$fulltitle.mkv"
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -i blackscreen.mkv -i ".\originals\clip7.mkv" -i blackscreen.mkv -i ".\originals\clip8.mkv" -i blackscreen.mkv -i ".\originals\clip9.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0][15:v:0][15:a:0][16:v:0][16:a:0]concat=n=17:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
     if ($vidcount -eq 10) {
-        ffmpeg -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -i blackscreen.mkv -i ".\originals\clip7.mkv" -i blackscreen.mkv -i ".\originals\clip8.mkv" -i blackscreen.mkv -i ".\originals\clip9.mkv" -i blackscreen.mkv -i ".\originals\clip10.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0][15:v:0][15:a:0][16:v:0][16:a:0][17:v:0][17:a:0][18:v:0][18:a:0]concat=n=19:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "clip$fulltitle.mkv"
+        .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\originals\clip1.mkv" -i blackscreen.mkv -i ".\originals\clip2.mkv" -i blackscreen.mkv -i ".\originals\clip3.mkv" -i blackscreen.mkv -i ".\originals\clip4.mkv" -i blackscreen.mkv -i ".\originals\clip5.mkv" -i blackscreen.mkv -i ".\originals\clip6.mkv" -i blackscreen.mkv -i ".\originals\clip7.mkv" -i blackscreen.mkv -i ".\originals\clip8.mkv" -i blackscreen.mkv -i ".\originals\clip9.mkv" -i blackscreen.mkv -i ".\originals\clip10.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0][15:v:0][15:a:0][16:v:0][16:a:0][17:v:0][17:a:0][18:v:0][18:a:0]concat=n=19:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
     if ($vidcount -gt 10) {
         write-host "`rToo Many Clips!"
-        remove-item ".\blackscreen.mkv"
+        remove-item ".\output\blackscreen.mkv"
         return
     }
     Write-Host "`rRemoving Black Screen..."
-    remove-item ".\blackscreen.mkv"
+    remove-item ".\output\blackscreen.mkv"
     write-host "Clipping Complete!"
 }
 
@@ -262,23 +265,23 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip2Rt = "$2tc1`:$2tc2`:$2tc3.$2tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
-                        $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
+                        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
-                        while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         return
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = youtube-dl -g "$inlink"
-                        while (!$glink) {$glink = youtube-dl -g "$inlink"}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt "clip$clipnum.mkv"
+                        $glink = .\bin\youtube-dl.exe -g "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         return
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
@@ -473,26 +476,26 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip3Rt = "$3tc1`:$3tc2`:$3tc3.$3tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
-                        $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
+                        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
-                        while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = youtube-dl -g "$inlink"
-                        while (!$glink) {$glink = youtube-dl -g "$inlink"}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt "clip$clipnum.mkv"
+                        $glink = .\bin\youtube-dl.exe -g "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -746,30 +749,30 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip4Rt = "$4tc1`:$4tc2`:$4tc3.$4tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
-                        $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
+                        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
-                        while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = youtube-dl -g "$inlink"
-                        while (!$glink) {$glink = youtube-dl -g "$inlink"}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt "clip$clipnum.mkv"
+                        $glink = .\bin\youtube-dl.exe -g "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -1083,34 +1086,34 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip5Rt = "$5tc1`:$5tc2`:$5tc3.$5tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
-                        $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
+                        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
-                        while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = youtube-dl -g "$inlink"
-                        while (!$glink) {$glink = youtube-dl -g "$inlink"}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt "clip$clipnum.mkv"
+                        $glink = .\bin\youtube-dl.exe -g "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -1484,38 +1487,38 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip6Rt = "$6tc1`:$6tc2`:$6tc3.$6tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
-                        $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
+                        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
-                        while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = youtube-dl -g "$inlink"
-                        while (!$glink) {$glink = youtube-dl -g "$inlink"}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt "clip$clipnum.mkv"
+                        $glink = .\bin\youtube-dl.exe -g "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -1949,42 +1952,42 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip7Rt = "$7tc1`:$7tc2`:$7tc3.$7tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
-                        $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
+                        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
-                        while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = youtube-dl -g "$inlink"
-                        while (!$glink) {$glink = youtube-dl -g "$inlink"}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt "clip$clipnum.mkv"
+                        $glink = .\bin\youtube-dl.exe -g "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -2478,46 +2481,46 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip8Rt = "$8tc1`:$8tc2`:$8tc3.$8tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
-                        $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
+                        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
-                        while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip8Sps -i ($glink1) -t $clip8Rt -ss $clip8Sps -i ($glink2) -t $clip8Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink1) -t $clip8Rt -ss $clip8Sps -i ($glink2) -t $clip8Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = youtube-dl -g "$inlink"
-                        while (!$glink) {$glink = youtube-dl -g "$inlink"}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt "clip$clipnum.mkv"
+                        $glink = .\bin\youtube-dl.exe -g "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip8Sps -i ($glink) -t $clip8Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink) -t $clip8Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -3071,50 +3074,50 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip9Rt = "$9tc1`:$9tc2`:$9tc3.$9tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
-                        $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
+                        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
-                        while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip8Sps -i ($glink1) -t $clip8Rt -ss $clip8Sps -i ($glink2) -t $clip8Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink1) -t $clip8Rt -ss $clip8Sps -i ($glink2) -t $clip8Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip9Sps -i ($glink1) -t $clip9Rt -ss $clip9Sps -i ($glink2) -t $clip9Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($glink1) -t $clip9Rt -ss $clip9Sps -i ($glink2) -t $clip9Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = youtube-dl -g "$inlink"
-                        while (!$glink) {$glink = youtube-dl -g "$inlink"}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt "clip$clipnum.mkv"
+                        $glink = .\bin\youtube-dl.exe -g "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip8Sps -i ($glink) -t $clip8Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink) -t $clip8Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip9Sps -i ($glink) -t $clip9Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($glink) -t $clip9Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -3728,54 +3731,54 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip10Rt = "$10tc1`:$10tc2`:$10tc3.$10tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
-                        $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
+                        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
-                        while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip8Sps -i ($glink1) -t $clip8Rt -ss $clip8Sps -i ($glink2) -t $clip8Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink1) -t $clip8Rt -ss $clip8Sps -i ($glink2) -t $clip8Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip9Sps -i ($glink1) -t $clip9Rt -ss $clip9Sps -i ($glink2) -t $clip9Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($glink1) -t $clip9Rt -ss $clip9Sps -i ($glink2) -t $clip9Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip10Sps -i ($glink1) -t $clip10Rt -ss $clip10Sps -i ($glink2) -t $clip10Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip10Sps -i ($glink1) -t $clip10Rt -ss $clip10Sps -i ($glink2) -t $clip10Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
-                        while (!$glink) {$glink = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
-                        ffmpeg -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt "clip$clipnum.mkv"
+                        $glink = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip8Sps -i ($glink) -t $clip8Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink) -t $clip8Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip9Sps -i ($glink) -t $clip9Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($glink) -t $clip9Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
-                        ffmpeg -hide_banner -loglevel error -ss $clip10Sps -i ($glink) -t $clip10Rt "clip$clipnum.mkv"
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip10Sps -i ($glink) -t $clip10Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -3852,16 +3855,31 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
             $timestampRt = "$tc1`:$tc2`:$tc3.$tc4"
             $clipnum = read-host -prompt 'Clip Number'
             if ($videotype -eq "A" -or $videotype -eq "a") {
-                $glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
-                while (!$glinks) {$glinks = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
+                $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
+                while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                 $glink1,$glink2 = $glinks.split(" ")
                 if (!$glink2) {$glink2 = $glink1}
-                ffmpeg -hide_banner -loglevel error -ss $timestampSps -i ($glink1) -t $timestampRt -ss $timestampSps -i ($glink2) -t $timestampRt "clip$clipnum.mkv"
+                .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i ($glink1) -t $timestampRt -ss $timestampSps -i ($glink2) -t $timestampRt ".\output\clip$clipnum.mkv"
             }
             if ($videotype -eq "B" -or $videotype -eq "b") {
-                $glink = youtube-dl -g --youtube-skip-dash-manifest "$inlink"
-                while (!$glink) {$glink = youtube-dl -g --youtube-skip-dash-manifest "$inlink"}
-                ffmpeg -hide_banner -loglevel error -ss $timestampSps -i ($glink) -t $timestampRt "clip$clipnum.mkv"
+                $glink = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
+                while (!$glink) {$glink = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
+                .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i ($glink) -t $timestampRt ".\output\clip$clipnum.mkv"
+            }
+            if ($videotype -eq "C" -or $videotype -eq "c") {
+                $fullclipnum = read-host -prompt 'Clip Number'
+                $clipnum = $fullclipnum
+                $tempfile = ".\clipDL.mkv"
+                if (test-path ".\clipDL.mkv" -pathtype leaf) {$tempFile = ".\clipDL.mkv"}
+                if (test-path ".\clipDL.webm" -pathtype leaf) {$tempFile = ".\clipDL.webm"}
+                if (test-path ".\clipDL.mp4" -pathtype leaf) {$tempFile = ".\clipDL.mp4"}
+                .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i $tempFile -t $timestampEps -c copy ".\output\clip$clipnum.mkv"
+                $delete = read-host -prompt 'Do you want to remove the original file?'
+                if ($delete -eq 'Y' -or $delete -eq 'y') {remove-item $tempFile }
+                else {
+                    write-host "Clipping Complete!"
+                    return
+                }
             }
             }
     }
@@ -3943,7 +3961,7 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                 if (test-path ".\clipDL.mp4" -pathtype leaf) {$tempFile = ".\clipDL.mp4"}
                 #here's the old code for taking miniclips. It's more efficient than the spaghetti above, but less user-friendly imo.
                 while ($miniclipnum -gt 0) {
-                    ffmpeg -hide_banner -loglevel error -ss $timestampSps -i $tempFile -t $timestampEps -c copy "clip$clipnum.mkv"
+                    .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i $tempFile -t $timestampEps -c copy ".\output\clip$clipnum.mkv"
                     $timestampSin = read-host -prompt "Input Start Time (Format: XX:XX:XX:XX)"
                     $ts1,$ts2,$ts3,$ts4 = $timestampSin.split(":")
                     $ts1 = [int]$ts1
@@ -4025,7 +4043,7 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                 if (test-path ".\clipDL.mkv" -pathtype leaf) {$tempFile = ".\clipDL.mkv"}
                 if (test-path ".\clipDL.webm" -pathtype leaf) {$tempFile = ".\clipDL.webm"}
                 if (test-path ".\clipDL.mp4" -pathtype leaf) {$tempFile = ".\clipDL.mp4"}
-                ffmpeg -hide_banner -loglevel error -ss $timestampSps -i $tempFile -t $timestampEps -c copy "clip$clipnum.mkv"
+                .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i $tempFile -t $timestampEps -c copy ".\output\clip$clipnum.mkv"
                 $delete = read-host -prompt 'Do you want to remove the original file?'
                 if ($delete -eq 'Y' -or $delete -eq 'y') {remove-item $tempFile }
                 else {
@@ -4036,12 +4054,14 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
     }
     else {return}
 }
+remove-item -path ".\output" -recurse
+mkdir ".\output" | Out-Null
 write-host "
 |    Sheer Curiosity's Hololive Clipping Script    |
 |                                                  |
 |      Made With Copious Amounts Of Self-Hate      |
 |                                                  |
-|  Feel Free To Share This, The Code Is Bad Enough |
-|    I'm Not Too Worried About People Copying It   |
+|              Version 1.0 Alpha 1                 |
+|                                                  |
 "
 &$HololiveClipper
