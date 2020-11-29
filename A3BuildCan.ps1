@@ -10,30 +10,13 @@
 #This script both creates the 3 second black screen and stitches it between each mini-clip.
 #It also places all the original mini-clips in a new folder titled "originals" in the working directory
 $HoloStitcher = {
-    do {
-        $vidcount = read-host -prompt 'Number Of Miniclips [2-10]'
-    }
-    until ($vidcount -eq 2 -or $vidcount -eq 3 -or $vidcount -eq 4 -or $vidcount -eq 5 -or $vidcount -eq 6 -or $vidcount -eq 7 -or $vidcount -eq 8 -or $vidcount -eq 9 -or $vidcount -eq 10)
-    $resolution = read-host -prompt 'Video Resolution (1080, 720, 480, 360)'
     $fulltitle = read-host -prompt 'Clip Number'
-    write-host "Creating Black Screen..." -NoNewLine
-    $vidcount = [int]$vidcount
-    $resolution = [int]$resolution
-    if ($resolution -eq 1080) {
-        .\bin\ffmpeg.exe -hide_banner -loglevel error -f lavfi -i color=black:s=1920x1080:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 ".\output\blackscreen.mkv"
-    }
-    if ($resolution -eq 720) {
-        .\bin\ffmpeg.exe -hide_banner -loglevel error -f lavfi -i color=black:s=1280x720:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 ".\output\blackscreen.mkv"
-    }
-    if ($resolution -eq 480) {
-        .\bin\ffmpeg.exe -hide_banner -loglevel error -f lavfi -i color=black:s=854x480:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 ".\output\blackscreen.mkv"
-    }
-    if ($resolution -eq 360) {
-        .\bin\ffmpeg.exe -hide_banner -loglevel error -f lavfi -i color=black:s=640x360:r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 ".\output\blackscreen.mkv"
-    }
-    write-host "`rBlack Screen Created..." -NoNewLine
+    write-host "Status: Creating Black Screen..." -NoNewLine
+    $clipresolution = .\bin\ffprobe.exe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ".\output\clip1.mkv"
+    .\bin\ffmpeg.exe -hide_banner -loglevel error -f lavfi -i color=black:s="$clipresolution":r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 ".\output\blackscreen.mkv"
+    write-host "`rStatus: Black Screen Created..." -NoNewLine
     mkdir ".\output\originals" | Out-Null
-    #These check if each clip file exists, and if so, moves them to the ./originals folder
+    #These check if each clip file exists, and if so, moves them to the .\originals folder
     if (test-path ".\output\clip1.mkv" -pathtype leaf) {
         move-item -path ".\output\clip1.mkv" -destination ".\output\originals\clip1.mkv"
     }
@@ -64,43 +47,45 @@ $HoloStitcher = {
     if (test-path ".\output\clip10.mkv" -pathtype leaf) {
         move-item -path ".\output\clip10.mkv" -destination ".\output\originals\clip10.mkv"
     }
-    #There was definitely a better way to stitch clips than this, but I was strapped for time.
-    Write-Host "`rJoining Clips..." -NoNewLine
-    if ($vidcount -eq 2) {
+    #There is definitely a better way to stitch clips than this, but I was strapped for time.
+    Write-Host "`r                                    " -NoNewLine
+    Write-Host "`rStatus: Joining Clips..." -NoNewLine
+    if ($miniclipnum -eq 2) {
         .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\output\originals\clip1.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip2.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0]concat=n=3:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
-    if ($vidcount -eq 3) {
+    if ($miniclipnum -eq 3) {
         .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\output\originals\clip1.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip2.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip3.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0]concat=n=5:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
-    if ($vidcount -eq 4) {
+    if ($miniclipnum -eq 4) {
         .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\output\originals\clip1.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip2.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip3.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip4.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0]concat=n=7:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
-    if ($vidcount -eq 5) {
+    if ($miniclipnum -eq 5) {
         .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\output\originals\clip1.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip2.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip3.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip4.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip5.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0]concat=n=9:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
-    if ($vidcount -eq 6) {
+    if ($miniclipnum -eq 6) {
         .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\output\originals\clip1.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip2.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip3.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip4.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip5.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip6.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0]concat=n=11:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
-    if ($vidcount -eq 7) {
+    if ($miniclipnum -eq 7) {
         .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\output\originals\clip1.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip2.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip3.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip4.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip5.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip6.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip7.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0]concat=n=13:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
-    if ($vidcount -eq 8) {
+    if ($miniclipnum -eq 8) {
         .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\output\originals\clip1.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip2.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip3.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip4.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip5.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip6.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip7.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip8.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0]concat=n=15:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
-    if ($vidcount -eq 9) {
+    if ($miniclipnum -eq 9) {
         .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\output\originals\clip1.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip2.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip3.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip4.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip5.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip6.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip7.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip8.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip9.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0][15:v:0][15:a:0][16:v:0][16:a:0]concat=n=17:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
-    if ($vidcount -eq 10) {
+    if ($miniclipnum -eq 10) {
         .\bin\ffmpeg.exe -hide_banner -loglevel error -i ".\output\originals\clip1.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip2.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip3.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip4.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip5.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip6.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip7.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip8.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip9.mkv" -i ".\output\blackscreen.mkv" -i ".\output\originals\clip10.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0][15:v:0][15:a:0][16:v:0][16:a:0][17:v:0][17:a:0][18:v:0][18:a:0]concat=n=19:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 ".\output\clip$fulltitle.mkv"
     }
-    if ($vidcount -gt 10) {
-        write-host "`rToo Many Clips!"
+    if ($miniclipnum -gt 10) {
+        write-host "`rERROR: Too Many Clips!"
         remove-item ".\output\blackscreen.mkv"
         return
     }
-    Write-Host "`rRemoving Black Screen..."
+    Write-Host "`rStatus: Removing Black Screen..." -NoNewLine
     remove-item ".\output\blackscreen.mkv"
-    write-host "Clipping Complete!"
+    write-host "`rClipping Complete!"
+    read-host -prompt "Press [ENTER] To Close The Tool"
 }
 
 $HololiveClipper = {
@@ -110,7 +95,7 @@ $HololiveClipper = {
         $videotype = read-host -prompt "Video Type: `n
 A) YouTube Video 
 B) Archive 
-C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM) 
+C) Local File
 
 [A/B/C]"
     }
@@ -120,9 +105,19 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
         $cliptype = read-host -prompt "Clip According To HoloRewind Standards? [Y/N]"
     }
     until ($cliptype -eq "y" -or $cliptype -eq "Y" -or $cliptype -eq "N" -or $cliptype -eq "n")
-    if ($videotype -eq "A" -or $videotype -eq "a" -or $videotype -eq "B" -or $videotype -eq "b") {
+    if ($videotype -eq "A" -or $videotype -eq "a" -or $videotype -eq "B" -or $videotype -eq "b" -or $videotype -eq "C" -or $videotype -eq "c") {
             if ($videotype -eq "A" -or $videotype -eq "a"){$inlink = read-host -prompt 'Input YouTube Link'}
             if ($videotype -eq "B" -or $videotype -eq "b"){$inlink = read-host -prompt 'Input Archive Download Link'}
+            if ($videotype -eq "C" -or $videotype -eq "c") {
+                $tempfile = ".\clipDL.mkv"
+                if (test-path ".\clipDL.mkv" -pathtype leaf) {$tempFile = ".\clipDL.mkv"}
+                if (test-path ".\clipDL.webm" -pathtype leaf) {$tempFile = ".\clipDL.webm"}
+                if (test-path ".\clipDL.mp4" -pathtype leaf) {$tempFile = ".\clipDL.mp4"}
+                if (test-path ".\clipDL.mov" -pathtype leaf) {$tempFile = ".\clipDL.mov"}
+                if (test-path ".\clipDL.wmv" -pathtype leaf) {$tempFile = ".\clipDL.wmv"}
+                if (test-path ".\clipDL.avi" -pathtype leaf) {$tempFile = ".\clipDL.avi"}
+                if (test-path ".\clipDL.flv" -pathtype leaf) {$tempFile = ".\clipDL.flv"}
+            }
             #if the clip has miniclips, run the spaghetti below
             $miniclip = read-host -prompt 'Clip Has Miniclips? [Y/N]'
             if ($miniclip -eq "Y" -or $miniclip -eq "y") {
@@ -150,6 +145,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1ts3 -lt 0) {
                             $1ts3 = $1ts3 + 60
                             $1ts2 = $1ts2 - 1
+                            if ($1ts2 -lt 0) {
+                                $1ts2 = $1ts2 + 60
+                                $1ts1 = $1ts1 - 1
+                            }
                         }
                     }
                     #Ask for user input on clip end timestamp
@@ -163,8 +162,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $1te3 = $1te3 + 5
                         if ($1te3 -ge 60) {
-                        $1te3 = $1te3 - 60
-                        $1te2 = $1te2 + 1
+                            $1te3 = $1te3 - 60
+                            $1te2 = $1te2 + 1
+                            if ($1te2 -ge 60) {
+                                $1te2 = $1te2 - 60
+                                $1te1 = $1te1 + 1
+                            }
                         }
                     }
                     #More math to calculate the runtime of the clip
@@ -173,8 +176,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1tc3 = $1te3 - $1ts3
                     $1tc4 = $1te4 - $1ts4
                     if ($1tc3 -lt 0) {
-                    $1tc3 = $1tc3 + 60
-                    $1tc2 = $1tc2 - 1
+                        $1tc3 = $1tc3 + 60
+                        $1tc2 = $1tc2 - 1
+                        if ($1tc2 -lt 0) {
+                            $1tc1 = $1tc1 + 60
+                            $1tc1 = $1tc1 - 1
+                        }
                     }
                     #These make sure the timestamp is in the correct format for being used in the ffmpeg commmand
                     if (($1tc1.tostring().length) -eq 1) {
@@ -215,6 +222,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($2ts3 -lt 0) {
                         $2ts3 = $2ts3 + 60
                         $2ts2 = $2ts2 - 1
+                        if ($2ts2 -lt 0) {
+                            $2ts2 = $2ts2 + 60
+                            $2ts1 = $2ts1 - 1
+                        }
                     }
                     $clip2te = read-host -prompt "Input End Time For Clip 2 (Format: XX:XX:XX:XX)"
                     $2te1,$2te2,$2te3,$2te4 = $clip2te.split(":")
@@ -225,8 +236,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $2te3 = $2te3 + 5
                         if ($2te3 -ge 60) {
-                        $2te3 = $2te3 - 60
-                        $2te2 = $2te2 + 1
+                            $2te3 = $2te3 - 60
+                            $2te2 = $2te2 + 1
+                            if ($2te2 -ge 60) {
+                                $2te2 = $2te2 - 60
+                                $2te1 = $2te1 + 1
+                            }
                         }
                     }
                     $2tc1 = $2te1 - $2ts1
@@ -234,8 +249,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $2tc3 = $2te3 - $2ts3
                     $2tc4 = $2te4 - $2ts4
                     if ($2tc3 -lt 0) {
-                    $2tc3 = $2tc3 + 60
-                    $2tc2 = $2tc2 - 1
+                        $2tc3 = $2tc3 + 60
+                        $2tc2 = $2tc2 - 1
+                        if ($2tc2 -lt 0) {
+                            $2tc2 = $2tc2 + 60
+                            $2tc1 = $2tc1 - 1
+                        }
                     }
                     if (($2tc1.tostring().length) -eq 1) {
                     $2tc1 = "0$2tc1"
@@ -265,31 +284,44 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip2Rt = "$2tc1`:$2tc2`:$2tc3.$2tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
+                        write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                         $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
                         while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
+                        write-host "`r                                                      " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
-                        return
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
+                        write-host "Status: Fetching Archive Media..." -NoNewLine
                         $glink = .\bin\youtube-dl.exe -g "$inlink"
                         while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        write-host "`r                                     " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
-                        return
+                    }
+                    if ($videotype -eq "C" -or $videotype -eq "c") {
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($tempfile) -t $clip1Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..."
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($tempfile) -t $clip2Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
                     &$HoloStitcher
                     }
                     else {
-                        write-host "Clipping Complete!"    
+                        write-host "`rClipping Complete!"    
                         return
                     }
                 }
@@ -305,6 +337,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1ts3 -lt 0) {
                             $1ts3 = $1ts3 + 60
                             $1ts2 = $1ts2 - 1
+                            if ($1ts2 -lt 0) {
+                                $1ts2 = $1ts2 + 60
+                                $1ts1 = $1ts1 - 1
+                            }
                         }
                     }
                     $clip1te = read-host -prompt "Input End Time For Clip 1 (Format: XX:XX:XX:XX)"
@@ -316,8 +352,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $1te3 = $1te3 + 5
                         if ($1te3 -ge 60) {
-                        $1te3 = $1te3 - 60
-                        $1te2 = $1te2 + 1
+                            $1te3 = $1te3 - 60
+                            $1te2 = $1te2 + 1
+                            if ($1te2 -ge 60) {
+                                $1te2 = $1te2 - 60
+                                $1te1 = $1te1 + 1
+                            }
                         }
                     }
                     $1tc1 = $1te1 - $1ts1
@@ -325,8 +365,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1tc3 = $1te3 - $1ts3
                     $1tc4 = $1te4 - $1ts4
                     if ($1tc3 -lt 0) {
-                    $1tc3 = $1tc3 + 60
-                    $1tc2 = $1tc2 - 1
+                        $1tc3 = $1tc3 + 60
+                        $1tc2 = $1tc2 - 1
+                        if ($1tc2 -lt 0) {
+                            $1tc1 = $1tc1 + 60
+                            $1tc1 = $1tc1 - 1
+                        }
                     }
                     if (($1tc1.tostring().length) -eq 1) {
                     $1tc1 = "0$1tc1"
@@ -365,6 +409,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2ts3 -lt 0) {
                             $2ts3 = $2ts3 + 60
                             $2ts2 = $2ts2 - 1
+                            if ($2ts2 -lt 0) {
+                                $2ts2 = $2ts2 + 60
+                                $2ts1 = $2ts1 - 1
+                            }
                         }
                     }
                     $clip2te = read-host -prompt "Input End Time For Clip 2 (Format: XX:XX:XX:XX)"
@@ -376,8 +424,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $2te3 = $2te3 + 5
                         if ($2te3 -ge 60) {
-                        $2te3 = $2te3 - 60
-                        $2te2 = $2te2 + 1
+                            $2te3 = $2te3 - 60
+                            $2te2 = $2te2 + 1
+                            if ($2te2 -ge 60) {
+                                $2te2 = $2te2 - 60
+                                $2te1 = $2te1 + 1
+                            }
                         }
                     }
                     $2tc1 = $2te1 - $2ts1
@@ -385,8 +437,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $2tc3 = $2te3 - $2ts3
                     $2tc4 = $2te4 - $2ts4
                     if ($2tc3 -lt 0) {
-                    $2tc3 = $2tc3 + 60
-                    $2tc2 = $2tc2 - 1
+                        $2tc3 = $2tc3 + 60
+                        $2tc2 = $2tc2 - 1
+                        if ($2tc2 -lt 0) {
+                            $2tc2 = $2tc2 + 60
+                            $2tc1 = $2tc1 - 1
+                        }
                     }
                     if (($2tc1.tostring().length) -eq 1) {
                     $2tc1 = "0$2tc1"
@@ -425,6 +481,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3ts3 -lt 0) {
                             $3ts3 = $3ts3 + 60
                             $3ts2 = $3ts2 - 1
+                            if ($3ts2 -lt 0) {
+                                $3ts2 = $3ts2 + 60
+                                $3ts1 = $3ts1 - 1
+                            }
                         }
                     }
                     $clip3te = read-host -prompt "Input End Time For Clip 3 (Format: XX:XX:XX:XX)"
@@ -436,8 +496,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $3te3 = $3te3 + 5
                         if ($3te3 -ge 60) {
-                        $3te3 = $3te3 - 60
-                        $3te2 = $3te2 + 1
+                            $3te3 = $3te3 - 60
+                            $3te2 = $3te2 + 1
+                            if ($3te2 -ge 60) {
+                                $3te2 = $3te2 - 60
+                                $3te1 = $3te1 + 1
+                            }
                         }
                     }
                     $3tc1 = $3te1 - $3ts1
@@ -445,8 +509,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $3tc3 = $3te3 - $3ts3
                     $3tc4 = $3te4 - $3ts4
                     if ($3tc3 -lt 0) {
-                    $3tc3 = $3tc3 + 60
-                    $3tc2 = $3tc2 - 1
+                        $3tc3 = $3tc3 + 60
+                        $3tc2 = $3tc2 - 1
+                        if ($3tc2 -lt 0) {
+                            $3tc2 = $3tc2 + 60
+                            $3tc1 = $3tc1 - 1
+                        }
                     }
                     if (($3tc1.tostring().length) -eq 1) {
                     $3tc1 = "0$3tc1"
@@ -476,26 +544,46 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip3Rt = "$3tc1`:$3tc2`:$3tc3.$3tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
+                        write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                         $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
                         while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
+                        write-host "`r                                                      " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
+                        write-host "Status: Fetching Archive Media..." -NoNewLine
                         $glink = .\bin\youtube-dl.exe -g "$inlink"
                         while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        write-host "`r                                     " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
+                    }
+                    if ($videotype -eq "C" -or $videotype -eq "c") {
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($tempfile) -t $clip1Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($tempfile) -t $clip2Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..."
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($tempfile) -t $clip3Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -518,6 +606,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1ts3 -lt 0) {
                             $1ts3 = $1ts3 + 60
                             $1ts2 = $1ts2 - 1
+                            if ($1ts2 -lt 0) {
+                                $1ts2 = $1ts2 + 60
+                                $1ts1 = $1ts1 - 1
+                            }
                         }
                     }
                     $clip1te = read-host -prompt "Input End Time For Clip 1 (Format: XX:XX:XX:XX)"
@@ -529,8 +621,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $1te3 = $1te3 + 5
                         if ($1te3 -ge 60) {
-                        $1te3 = $1te3 - 60
-                        $1te2 = $1te2 + 1
+                            $1te3 = $1te3 - 60
+                            $1te2 = $1te2 + 1
+                            if ($1te2 -ge 60) {
+                                $1te2 = $1te2 - 60
+                                $1te1 = $1te1 + 1
+                            }
                         }
                     }
                     $1tc1 = $1te1 - $1ts1
@@ -538,8 +634,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1tc3 = $1te3 - $1ts3
                     $1tc4 = $1te4 - $1ts4
                     if ($1tc3 -lt 0) {
-                    $1tc3 = $1tc3 + 60
-                    $1tc2 = $1tc2 - 1
+                        $1tc3 = $1tc3 + 60
+                        $1tc2 = $1tc2 - 1
+                        if ($1tc2 -lt 0) {
+                            $1tc1 = $1tc1 + 60
+                            $1tc1 = $1tc1 - 1
+                        }
                     }
                     if (($1tc1.tostring().length) -eq 1) {
                     $1tc1 = "0$1tc1"
@@ -578,6 +678,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2ts3 -lt 0) {
                             $2ts3 = $2ts3 + 60
                             $2ts2 = $2ts2 - 1
+                            if ($2ts2 -lt 0) {
+                                $2ts2 = $2ts2 + 60
+                                    $2ts1 = $2ts1 - 1
+                            }
                         }
                     }
                     $clip2te = read-host -prompt "Input End Time For Clip 2 (Format: XX:XX:XX:XX)"
@@ -589,8 +693,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $2te3 = $2te3 + 5
                         if ($2te3 -ge 60) {
-                        $2te3 = $2te3 - 60
-                        $2te2 = $2te2 + 1
+                            $2te3 = $2te3 - 60
+                            $2te2 = $2te2 + 1
+                            if ($2te2 -ge 60) {
+                                $2te2 = $2te2 - 60
+                                $2te1 = $2te1 + 1
+                            }
                         }
                     }
                     $2tc1 = $2te1 - $2ts1
@@ -598,8 +706,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $2tc3 = $2te3 - $2ts3
                     $2tc4 = $2te4 - $2ts4
                     if ($2tc3 -lt 0) {
-                    $2tc3 = $2tc3 + 60
-                    $2tc2 = $2tc2 - 1
+                        $2tc3 = $2tc3 + 60
+                        $2tc2 = $2tc2 - 1
+                        if ($2tc2 -lt 0) {
+                            $2tc2 = $2tc2 + 60
+                            $2tc1 = $2tc1 - 1
+                        }
                     }
                     if (($2tc1.tostring().length) -eq 1) {
                     $2tc1 = "0$2tc1"
@@ -638,6 +750,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3ts3 -lt 0) {
                             $3ts3 = $3ts3 + 60
                             $3ts2 = $3ts2 - 1
+                            if ($3ts2 -lt 0) {
+                                $3ts2 = $3ts2 + 60
+                                $3ts1 = $3ts1 - 1
+                            }
                         }
                     }
                     $clip3te = read-host -prompt "Input End Time For Clip 3 (Format: XX:XX:XX:XX)"
@@ -651,6 +767,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3te3 -ge 60) {
                             $3te3 = $3te3 - 60
                             $3te2 = $3te2 + 1
+                            if ($3te2 -ge 60) {
+                                $3te2 = $3te2 - 60
+                                $3te1 = $3te1 + 1
+                            }
                         }
                     }
                     $3tc1 = $3te1 - $3ts1
@@ -658,8 +778,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $3tc3 = $3te3 - $3ts3
                     $3tc4 = $3te4 - $3ts4
                     if ($3tc3 -lt 0) {
-                    $3tc3 = $3tc3 + 60
-                    $3tc2 = $3tc2 - 1
+                        $3tc3 = $3tc3 + 60
+                        $3tc2 = $3tc2 - 1
+                        if ($3tc2 -lt 0) {
+                            $3tc2 = $3tc2 + 60
+                            $3tc1 = $3tc1 - 1
+                        }
                     }
                     if (($3tc1.tostring().length) -eq 1) {
                     $3tc1 = "0$3tc1"
@@ -698,6 +822,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($4ts3 -lt 0) {
                             $4ts3 = $4ts3 + 60
                             $4ts2 = $4ts2 - 1
+                            if ($4ts2 -lt 0) {
+                                $4ts2 = $4ts2 + 60
+                                $4ts1 = $4ts1 - 1
+                            }
                         }
                     }
                     $clip4te = read-host -prompt "Input End Time For Clip 4 (Format: XX:XX:XX:XX)"
@@ -711,6 +839,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($4te3 -ge 60) {
                             $4te3 = $4te3 - 60
                             $4te2 = $4te2 + 1
+                            if ($4te2 -ge 60) {
+                                $4te2 = $4te2 - 60
+                                $4te1 = $4te1 + 1
+                            }
                         }
                     }
                     $4tc1 = $4te1 - $4ts1
@@ -718,8 +850,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $4tc3 = $4te3 - $4ts3
                     $4tc4 = $4te4 - $4ts4
                     if ($4tc3 -lt 0) {
-                    $4tc3 = $4tc3 + 60
-                    $4tc2 = $4tc2 - 1
+                        $4tc3 = $4tc3 + 60
+                        $4tc2 = $4tc2 - 1
+                        if ($4tc2 -lt 0) {
+                            $4tc2 = $4tc2 + 60
+                            $4tc1 = $4tc1 - 1
+                        }
                     }
                     if (($4tc1.tostring().length) -eq 1) {
                     $4tc1 = "0$4tc1"
@@ -749,30 +885,55 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip4Rt = "$4tc1`:$4tc2`:$4tc3.$4tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
+                        write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                         $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
                         while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
+                        write-host "`r                                                      " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
+                        write-host "Status: Fetching Archive Media..." -NoNewLine
                         $glink = .\bin\youtube-dl.exe -g "$inlink"
                         while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        write-host "`r                                     " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
+                    }
+                    if ($videotype -eq "C" -or $videotype -eq "c") {
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($tempfile) -t $clip1Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($tempfile) -t $clip2Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($tempfile) -t $clip3Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..."
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($tempfile) -t $clip4Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -795,6 +956,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1ts3 -lt 0) {
                             $1ts3 = $1ts3 + 60
                             $1ts2 = $1ts2 - 1
+                            if ($1ts2 -lt 0) {
+                                $1ts2 = $1ts2 + 60
+                                $1ts1 = $1ts1 - 1
+                            }
                         }
                     }
                     $clip1te = read-host -prompt "Input End Time For Clip 1 (Format: XX:XX:XX:XX)"
@@ -808,6 +973,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1te3 -ge 60) {
                             $1te3 = $1te3 - 60
                             $1te2 = $1te2 + 1
+                            if ($1te2 -ge 60) {
+                                $1te2 = $1te2 - 60
+                                $1te1 = $1te1 + 1
+                            }
                         }
                     }
                     $1tc1 = $1te1 - $1ts1
@@ -815,8 +984,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1tc3 = $1te3 - $1ts3
                     $1tc4 = $1te4 - $1ts4
                     if ($1tc3 -lt 0) {
-                    $1tc3 = $1tc3 + 60
-                    $1tc2 = $1tc2 - 1
+                        $1tc3 = $1tc3 + 60
+                        $1tc2 = $1tc2 - 1
+                        if ($1tc2 -lt 0) {
+                            $1tc1 = $1tc1 + 60
+                            $1tc1 = $1tc1 - 1
+                        }
                     }
                     if (($1tc1.tostring().length) -eq 1) {
                     $1tc1 = "0$1tc1"
@@ -855,6 +1028,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2ts3 -lt 0) {
                             $2ts3 = $2ts3 + 60
                             $2ts2 = $2ts2 - 1
+                            if ($2ts2 -lt 0) {
+                                $2ts2 = $2ts2 + 60
+                                    $2ts1 = $2ts1 - 1
+                            }
                         }
                     }
                     $clip2te = read-host -prompt "Input End Time For Clip 2 (Format: XX:XX:XX:XX)"
@@ -868,6 +1045,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2te3 -ge 60) {
                             $2te3 = $2te3 - 60
                             $2te2 = $2te2 + 1
+                            if ($2te2 -ge 60) {
+                                $2te2 = $2te2 - 60
+                                $2te1 = $2te1 + 1
+                            }
                         }
                     }
                     $2tc1 = $2te1 - $2ts1
@@ -875,8 +1056,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $2tc3 = $2te3 - $2ts3
                     $2tc4 = $2te4 - $2ts4
                     if ($2tc3 -lt 0) {
-                    $2tc3 = $2tc3 + 60
-                    $2tc2 = $2tc2 - 1
+                        $2tc3 = $2tc3 + 60
+                        $2tc2 = $2tc2 - 1
+                        if ($2tc2 -lt 0) {
+                            $2tc2 = $2tc2 + 60
+                            $2tc1 = $2tc1 - 1
+                        }
                     }
                     if (($2tc1.tostring().length) -eq 1) {
                     $2tc1 = "0$2tc1"
@@ -915,6 +1100,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3ts3 -lt 0) {
                             $3ts3 = $3ts3 + 60
                             $3ts2 = $3ts2 - 1
+                            if ($3ts2 -lt 0) {
+                                $3ts2 = $3ts2 + 60
+                                $3ts1 = $3ts1 - 1
+                            }
                         }
                     }
                     $clip3te = read-host -prompt "Input End Time For Clip 3 (Format: XX:XX:XX:XX)"
@@ -928,6 +1117,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3te3 -ge 60) {
                             $3te3 = $3te3 - 60
                             $3te2 = $3te2 + 1
+                            if ($3te2 -ge 60) {
+                                $3te2 = $3te2 - 60
+                                $3te1 = $3te1 + 1
+                            }
                         }
                     }
                     $3tc1 = $3te1 - $3ts1
@@ -935,8 +1128,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $3tc3 = $3te3 - $3ts3
                     $3tc4 = $3te4 - $3ts4
                     if ($3tc3 -lt 0) {
-                    $3tc3 = $3tc3 + 60
-                    $3tc2 = $3tc2 - 1
+                        $3tc3 = $3tc3 + 60
+                        $3tc2 = $3tc2 - 1
+                        if ($3tc2 -lt 0) {
+                            $3tc2 = $3tc2 + 60
+                            $3tc1 = $3tc1 - 1
+                        }
                     }
                     if (($3tc1.tostring().length) -eq 1) {
                     $3tc1 = "0$3tc1"
@@ -975,6 +1172,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($4ts3 -lt 0) {
                             $4ts3 = $4ts3 + 60
                             $4ts2 = $4ts2 - 1
+                            if ($4ts2 -lt 0) {
+                                $4ts2 = $4ts2 + 60
+                                $4ts1 = $4ts1 - 1
+                            }
                         }
                     }
                     $clip4te = read-host -prompt "Input End Time For Clip 4 (Format: XX:XX:XX:XX)"
@@ -988,6 +1189,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($4te3 -ge 60) {
                             $4te3 = $4te3 - 60
                             $4te2 = $4te2 + 1
+                            if ($4te2 -ge 60) {
+                                $4te2 = $4te2 - 60
+                                $4te1 = $4te1 + 1
+                            }
                         }
                     }
                     $4tc1 = $4te1 - $4ts1
@@ -995,8 +1200,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $4tc3 = $4te3 - $4ts3
                     $4tc4 = $4te4 - $4ts4
                     if ($4tc3 -lt 0) {
-                    $4tc3 = $4tc3 + 60
-                    $4tc2 = $4tc2 - 1
+                        $4tc3 = $4tc3 + 60
+                        $4tc2 = $4tc2 - 1
+                        if ($4tc2 -lt 0) {
+                            $4tc2 = $4tc2 + 60
+                            $4tc1 = $4tc1 - 1
+                        }
                     }
                     if (($4tc1.tostring().length) -eq 1) {
                     $4tc1 = "0$4tc1"
@@ -1035,6 +1244,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($5ts3 -lt 0) {
                             $5ts3 = $5ts3 + 60
                             $5ts2 = $5ts2 - 1
+                            if ($5ts2 -lt 0) {
+                                $5ts2 = $5ts2 + 60
+                                $5ts1 = $5ts1 - 1
+                            }
                         }
                     }
                     $clip5te = read-host -prompt "Input End Time For Clip 5 (Format: XX:XX:XX:XX)"
@@ -1048,6 +1261,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($5te3 -ge 60) {
                             $5te3 = $5te3 - 60
                             $5te2 = $5te2 + 1
+                            if ($5te2 -ge 60) {
+                                $5te2 = $5te2 - 60
+                                $5te1 = $5te1 + 1
+                            }
                         }
                     }
                     $5tc1 = $5te1 - $5ts1
@@ -1055,8 +1272,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $5tc3 = $5te3 - $5ts3
                     $5tc4 = $5te4 - $5ts4
                     if ($5tc3 -lt 0) {
-                    $5tc3 = $5tc3 + 60
-                    $5tc2 = $5tc2 - 1
+                        $5tc3 = $5tc3 + 60
+                        $5tc2 = $5tc2 - 1
+                        if ($5tc2 -lt 0) {
+                            $5tc2 = $5tc2 + 60
+                            $5tc1 = $5tc1 - 1
+                        }
                     }
                     if (($5tc1.tostring().length) -eq 1) {
                     $5tc1 = "0$5tc1"
@@ -1086,34 +1307,64 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip5Rt = "$5tc1`:$5tc2`:$5tc3.$5tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
+                        write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                         $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
                         while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
+                        write-host "`r                                                      " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
+                        write-host "Status: Fetching Archive Media..." -NoNewLine
                         $glink = .\bin\youtube-dl.exe -g "$inlink"
                         while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        write-host "`r                                     " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
+                    }
+                    if ($videotype -eq "C" -or $videotype -eq "c") {
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($tempfile) -t $clip1Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($tempfile) -t $clip2Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($tempfile) -t $clip3Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($tempfile) -t $clip4Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..."
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($tempfile) -t $clip5Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -1136,6 +1387,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1ts3 -lt 0) {
                             $1ts3 = $1ts3 + 60
                             $1ts2 = $1ts2 - 1
+                            if ($1ts2 -lt 0) {
+                                $1ts2 = $1ts2 + 60
+                                $1ts1 = $1ts1 - 1
+                            }
                         }
                     }
                     $clip1te = read-host -prompt "Input End Time For Clip 1 (Format: XX:XX:XX:XX)"
@@ -1149,6 +1404,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1te3 -ge 60) {
                             $1te3 = $1te3 - 60
                             $1te2 = $1te2 + 1
+                            if ($1te2 -ge 60) {
+                                $1te2 = $1te2 - 60
+                                $1te1 = $1te1 + 1
+                            }
                         }
                     }
                     $1tc1 = $1te1 - $1ts1
@@ -1156,8 +1415,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1tc3 = $1te3 - $1ts3
                     $1tc4 = $1te4 - $1ts4
                     if ($1tc3 -lt 0) {
-                    $1tc3 = $1tc3 + 60
-                    $1tc2 = $1tc2 - 1
+                        $1tc3 = $1tc3 + 60
+                        $1tc2 = $1tc2 - 1
+                        if ($1tc2 -lt 0) {
+                            $1tc1 = $1tc1 + 60
+                            $1tc1 = $1tc1 - 1
+                        }
                     }
                     if (($1tc1.tostring().length) -eq 1) {
                     $1tc1 = "0$1tc1"
@@ -1196,6 +1459,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2ts3 -lt 0) {
                             $2ts3 = $2ts3 + 60
                             $2ts2 = $2ts2 - 1
+                            if ($2ts2 -lt 0) {
+                                $2ts2 = $2ts2 + 60
+                                    $2ts1 = $2ts1 - 1
+                            }
                         }
                     }
                     $clip2te = read-host -prompt "Input End Time For Clip 2 (Format: XX:XX:XX:XX)"
@@ -1209,6 +1476,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2te3 -ge 60) {
                             $2te3 = $2te3 - 60
                             $2te2 = $2te2 + 1
+                            if ($2te2 -ge 60) {
+                                $2te2 = $2te2 - 60
+                                $2te1 = $2te1 + 1
+                            }
                         }
                     }
                     $2tc1 = $2te1 - $2ts1
@@ -1216,8 +1487,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $2tc3 = $2te3 - $2ts3
                     $2tc4 = $2te4 - $2ts4
                     if ($2tc3 -lt 0) {
-                    $2tc3 = $2tc3 + 60
-                    $2tc2 = $2tc2 - 1
+                        $2tc3 = $2tc3 + 60
+                        $2tc2 = $2tc2 - 1
+                        if ($2tc2 -lt 0) {
+                            $2tc2 = $2tc2 + 60
+                            $2tc1 = $2tc1 - 1
+                        }
                     }
                     if (($2tc1.tostring().length) -eq 1) {
                     $2tc1 = "0$2tc1"
@@ -1256,6 +1531,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3ts3 -lt 0) {
                             $3ts3 = $3ts3 + 60
                             $3ts2 = $3ts2 - 1
+                            if ($3ts2 -lt 0) {
+                                $3ts2 = $3ts2 + 60
+                                $3ts1 = $3ts1 - 1
+                            }
                         }
                     }
                     $clip3te = read-host -prompt "Input End Time For Clip 3 (Format: XX:XX:XX:XX)"
@@ -1267,8 +1546,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $3te3 = $3te3 + 5
                         if ($3te3 -ge 60) {
-                        $3te3 = $3te3 - 60
-                        $3te2 = $3te2 + 1
+                            $3te3 = $3te3 - 60
+                            $3te2 = $3te2 + 1
+                            if ($3te2 -ge 60) {
+                                $3te2 = $3te2 - 60
+                                $3te1 = $3te1 + 1
+                            }
                         }
                     }
                     $3tc1 = $3te1 - $3ts1
@@ -1276,8 +1559,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $3tc3 = $3te3 - $3ts3
                     $3tc4 = $3te4 - $3ts4
                     if ($3tc3 -lt 0) {
-                    $3tc3 = $3tc3 + 60
-                    $3tc2 = $3tc2 - 1
+                        $3tc3 = $3tc3 + 60
+                        $3tc2 = $3tc2 - 1
+                        if ($3tc2 -lt 0) {
+                            $3tc2 = $3tc2 + 60
+                            $3tc1 = $3tc1 - 1
+                        }
                     }
                     if (($3tc1.tostring().length) -eq 1) {
                     $3tc1 = "0$3tc1"
@@ -1316,6 +1603,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($4ts3 -lt 0) {
                             $4ts3 = $4ts3 + 60
                             $4ts2 = $4ts2 - 1
+                            if ($4ts2 -lt 0) {
+                                $4ts2 = $4ts2 + 60
+                                $4ts1 = $4ts1 - 1
+                            }
                         }
                     }
                     $clip4te = read-host -prompt "Input End Time For Clip 4 (Format: XX:XX:XX:XX)"
@@ -1327,8 +1618,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $4te3 = $4te3 + 5
                         if ($4te3 -ge 60) {
-                        $4te3 = $4te3 - 60
-                        $4te2 = $4te2 + 1
+                            $4te3 = $4te3 - 60
+                            $4te2 = $4te2 + 1
+                            if ($4te2 -ge 60) {
+                                $4te2 = $4te2 - 60
+                                $4te1 = $4te1 + 1
+                            }
                         }
                     }
                     $4tc1 = $4te1 - $4ts1
@@ -1336,8 +1631,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $4tc3 = $4te3 - $4ts3
                     $4tc4 = $4te4 - $4ts4
                     if ($4tc3 -lt 0) {
-                    $4tc3 = $4tc3 + 60
-                    $4tc2 = $4tc2 - 1
+                        $4tc3 = $4tc3 + 60
+                        $4tc2 = $4tc2 - 1
+                        if ($4tc2 -lt 0) {
+                            $4tc2 = $4tc2 + 60
+                            $4tc1 = $4tc1 - 1
+                        }
                     }
                     if (($4tc1.tostring().length) -eq 1) {
                     $4tc1 = "0$4tc1"
@@ -1376,6 +1675,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($5ts3 -lt 0) {
                             $5ts3 = $5ts3 + 60
                             $5ts2 = $5ts2 - 1
+                            if ($5ts2 -lt 0) {
+                                $5ts2 = $5ts2 + 60
+                                $5ts1 = $5ts1 - 1
+                            }
                         }
                     }
                     $clip5te = read-host -prompt "Input End Time For Clip 5 (Format: XX:XX:XX:XX)"
@@ -1387,8 +1690,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $5te3 = $5te3 + 5
                         if ($5te3 -ge 60) {
-                        $5te3 = $5te3 - 60
-                        $5te2 = $5te2 + 1
+                            $5te3 = $5te3 - 60
+                            $5te2 = $5te2 + 1
+                            if ($5te2 -ge 60) {
+                                $5te2 = $5te2 - 60
+                                $5te1 = $5te1 + 1
+                            }
                         }
                     }
                     $5tc1 = $5te1 - $5ts1
@@ -1396,8 +1703,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $5tc3 = $5te3 - $5ts3
                     $5tc4 = $5te4 - $5ts4
                     if ($5tc3 -lt 0) {
-                    $5tc3 = $5tc3 + 60
-                    $5tc2 = $5tc2 - 1
+                        $5tc3 = $5tc3 + 60
+                        $5tc2 = $5tc2 - 1
+                        if ($5tc2 -lt 0) {
+                            $5tc2 = $5tc2 + 60
+                            $5tc1 = $5tc1 - 1
+                        }
                     }
                     if (($5tc1.tostring().length) -eq 1) {
                     $5tc1 = "0$5tc1"
@@ -1436,6 +1747,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($6ts3 -lt 0) {
                             $6ts3 = $6ts3 + 60
                             $6ts2 = $6ts2 - 1
+                            if ($6ts2 -lt 0) {
+                                $6ts2 = $6ts2 + 60
+                                $6ts1 = $6ts1 - 1
+                            }
                         }
                     }
                     $clip6te = read-host -prompt "Input End Time For Clip 6 (Format: XX:XX:XX:XX)"
@@ -1447,8 +1762,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $6te3 = $6te3 + 5
                         if ($6te3 -ge 60) {
-                        $6te3 = $6te3 - 60
-                        $6te2 = $6te2 + 1
+                            $6te3 = $6te3 - 60
+                            $6te2 = $6te2 + 1
+                            if ($6te2 -ge 60) {
+                                $6te2 = $6te2 - 60
+                                $6te1 = $6te1 + 1
+                            }
                         }
                     }
                     $6tc1 = $6te1 - $6ts1
@@ -1456,8 +1775,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $6tc3 = $6te3 - $6ts3
                     $6tc4 = $6te4 - $6ts4
                     if ($6tc3 -lt 0) {
-                    $6tc3 = $6tc3 + 60
-                    $6tc2 = $6tc2 - 1
+                        $6tc3 = $6tc3 + 60
+                        $6tc2 = $6tc2 - 1
+                        if ($6tc2 -lt 0) {
+                            $6tc2 = $6tc2 + 60
+                            $6tc1 = $6tc1 - 1
+                        }
                     }
                     if (($6tc1.tostring().length) -eq 1) {
                     $6tc1 = "0$6tc1"
@@ -1487,38 +1810,73 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip6Rt = "$6tc1`:$6tc2`:$6tc3.$6tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
+                        write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                         $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
                         while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
+                        write-host "`r                                                      " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
+                        write-host "Status: Fetching Archive Media..." -NoNewLine
                         $glink = .\bin\youtube-dl.exe -g "$inlink"
                         while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        write-host "`r                                     " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
+                    }
+                    if ($videotype -eq "C" -or $videotype -eq "c") {
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($tempfile) -t $clip1Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($tempfile) -t $clip2Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($tempfile) -t $clip3Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($tempfile) -t $clip4Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($tempfile) -t $clip5Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..."
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($tempfile) -t $clip6Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -1537,10 +1895,14 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1ts3 = [int]$1ts3
                     $1ts4 = [int]$1ts4
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
-                        $1ts3 = $1ts3 - 5
-                        if ($1ts3 -lt 0) {
-                            $1ts3 = $1ts3 + 60
-                            $1ts2 = $1ts2 - 1
+                        $1te3 = $1te3 + 5
+                        if ($1te3 -ge 60) {
+                            $1te3 = $1te3 - 60
+                            $1te2 = $1te2 + 1
+                            if ($1te2 -ge 60) {
+                                $1te2 = $1te2 - 60
+                                $1te1 = $1te1 + 1
+                            }
                         }
                     }
                     $clip1te = read-host -prompt "Input End Time For Clip 1 (Format: XX:XX:XX:XX)"
@@ -1550,10 +1912,14 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1te3 = [int]$1te3
                     $1te4 = [int]$1te4
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
-                        $1te3 = $1te3 + 5
-                        if ($1te3 -ge 60) {
-                            $1te3 = $1te3 - 60
-                            $1te2 = $1te2 + 1
+                        $1ts3 = $1ts3 - 5
+                        if ($1ts3 -lt 0) {
+                            $1ts3 = $1ts3 + 60
+                            $1ts2 = $1ts2 - 1
+                            if ($1ts2 -lt 0) {
+                                $1ts2 = $1ts2 + 60
+                                $1ts1 = $1ts1 - 1
+                            }
                         }
                     }
                     $1tc1 = $1te1 - $1ts1
@@ -1561,8 +1927,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1tc3 = $1te3 - $1ts3
                     $1tc4 = $1te4 - $1ts4
                     if ($1tc3 -lt 0) {
-                    $1tc3 = $1tc3 + 60
-                    $1tc2 = $1tc2 - 1
+                        $1tc3 = $1tc3 + 60
+                        $1tc2 = $1tc2 - 1
+                        if ($1tc2 -lt 0) {
+                            $1tc1 = $1tc1 + 60
+                            $1tc1 = $1tc1 - 1
+                        }
                     }
                     if (($1tc1.tostring().length) -eq 1) {
                     $1tc1 = "0$1tc1"
@@ -1601,6 +1971,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2ts3 -lt 0) {
                             $2ts3 = $2ts3 + 60
                             $2ts2 = $2ts2 - 1
+                            if ($2ts2 -lt 0) {
+                                $2ts2 = $2ts2 + 60
+                                    $2ts1 = $2ts1 - 1
+                            }
                         }
                     }
                     $clip2te = read-host -prompt "Input End Time For Clip 2 (Format: XX:XX:XX:XX)"
@@ -1614,6 +1988,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2te3 -ge 60) {
                             $2te3 = $2te3 - 60
                             $2te2 = $2te2 + 1
+                            if ($2te2 -ge 60) {
+                                $2te2 = $2te2 - 60
+                                $2te1 = $2te1 + 1
+                            }
                         }
                     }
                     $2tc1 = $2te1 - $2ts1
@@ -1621,8 +1999,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $2tc3 = $2te3 - $2ts3
                     $2tc4 = $2te4 - $2ts4
                     if ($2tc3 -lt 0) {
-                    $2tc3 = $2tc3 + 60
-                    $2tc2 = $2tc2 - 1
+                        $2tc3 = $2tc3 + 60
+                        $2tc2 = $2tc2 - 1
+                        if ($2tc2 -lt 0) {
+                            $2tc2 = $2tc2 + 60
+                            $2tc1 = $2tc1 - 1
+                        }
                     }
                     if (($2tc1.tostring().length) -eq 1) {
                     $2tc1 = "0$2tc1"
@@ -1661,6 +2043,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3ts3 -lt 0) {
                             $3ts3 = $3ts3 + 60
                             $3ts2 = $3ts2 - 1
+                            if ($3ts2 -lt 0) {
+                                $3ts2 = $3ts2 + 60
+                                $3ts1 = $3ts1 - 1
+                            }
                         }
                     }
                     $clip3te = read-host -prompt "Input End Time For Clip 3 (Format: XX:XX:XX:XX)"
@@ -1672,8 +2058,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $3te3 = $3te3 + 5
                         if ($3te3 -ge 60) {
-                        $3te3 = $3te3 - 60
-                        $3te2 = $3te2 + 1
+                            $3te3 = $3te3 - 60
+                            $3te2 = $3te2 + 1
+                            if ($3te2 -ge 60) {
+                                $3te2 = $3te2 - 60
+                                $3te1 = $3te1 + 1
+                            }
                         }
                     }
                     $3tc1 = $3te1 - $3ts1
@@ -1681,8 +2071,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $3tc3 = $3te3 - $3ts3
                     $3tc4 = $3te4 - $3ts4
                     if ($3tc3 -lt 0) {
-                    $3tc3 = $3tc3 + 60
-                    $3tc2 = $3tc2 - 1
+                        $3tc3 = $3tc3 + 60
+                        $3tc2 = $3tc2 - 1
+                        if ($3tc2 -lt 0) {
+                            $3tc2 = $3tc2 + 60
+                            $3tc1 = $3tc1 - 1
+                        }
                     }
                     if (($3tc1.tostring().length) -eq 1) {
                     $3tc1 = "0$3tc1"
@@ -1721,6 +2115,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($4ts3 -lt 0) {
                             $4ts3 = $4ts3 + 60
                             $4ts2 = $4ts2 - 1
+                            if ($4ts2 -lt 0) {
+                                $4ts2 = $4ts2 + 60
+                                $4ts1 = $4ts1 - 1
+                            }
                         }
                     }
                     $clip4te = read-host -prompt "Input End Time For Clip 4 (Format: XX:XX:XX:XX)"
@@ -1732,8 +2130,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $4te3 = $4te3 + 5
                         if ($4te3 -ge 60) {
-                        $4te3 = $4te3 - 60
-                        $4te2 = $4te2 + 1
+                            $4te3 = $4te3 - 60
+                            $4te2 = $4te2 + 1
+                            if ($4te2 -ge 60) {
+                                $4te2 = $4te2 - 60
+                                $4te1 = $4te1 + 1
+                            }
                         }
                     }
                     $4tc1 = $4te1 - $4ts1
@@ -1741,8 +2143,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $4tc3 = $4te3 - $4ts3
                     $4tc4 = $4te4 - $4ts4
                     if ($4tc3 -lt 0) {
-                    $4tc3 = $4tc3 + 60
-                    $4tc2 = $4tc2 - 1
+                        $4tc3 = $4tc3 + 60
+                        $4tc2 = $4tc2 - 1
+                        if ($4tc2 -lt 0) {
+                            $4tc2 = $4tc2 + 60
+                            $4tc1 = $4tc1 - 1
+                        }
                     }
                     if (($4tc1.tostring().length) -eq 1) {
                     $4tc1 = "0$4tc1"
@@ -1781,6 +2187,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($5ts3 -lt 0) {
                             $5ts3 = $5ts3 + 60
                             $5ts2 = $5ts2 - 1
+                            if ($5ts2 -lt 0) {
+                                $5ts2 = $5ts2 + 60
+                                $5ts1 = $5ts1 - 1
+                            }
                         }
                     }
                     $clip5te = read-host -prompt "Input End Time For Clip 5 (Format: XX:XX:XX:XX)"
@@ -1792,8 +2202,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $5te3 = $5te3 + 5
                         if ($5te3 -ge 60) {
-                        $5te3 = $5te3 - 60
-                        $5te2 = $5te2 + 1
+                            $5te3 = $5te3 - 60
+                            $5te2 = $5te2 + 1
+                            if ($5te2 -ge 60) {
+                                $5te2 = $5te2 - 60
+                                $5te1 = $5te1 + 1
+                            }
                         }
                     }
                     $5tc1 = $5te1 - $5ts1
@@ -1801,8 +2215,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $5tc3 = $5te3 - $5ts3
                     $5tc4 = $5te4 - $5ts4
                     if ($5tc3 -lt 0) {
-                    $5tc3 = $5tc3 + 60
-                    $5tc2 = $5tc2 - 1
+                        $5tc3 = $5tc3 + 60
+                        $5tc2 = $5tc2 - 1
+                        if ($5tc2 -lt 0) {
+                            $5tc2 = $5tc2 + 60
+                            $5tc1 = $5tc1 - 1
+                        }
                     }
                     if (($5tc1.tostring().length) -eq 1) {
                     $5tc1 = "0$5tc1"
@@ -1841,6 +2259,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($6ts3 -lt 0) {
                             $6ts3 = $6ts3 + 60
                             $6ts2 = $6ts2 - 1
+                            if ($6ts2 -lt 0) {
+                                $6ts2 = $6ts2 + 60
+                                $6ts1 = $6ts1 - 1
+                            }
                         }
                     }
                     $clip6te = read-host -prompt "Input End Time For Clip 6 (Format: XX:XX:XX:XX)"
@@ -1852,8 +2274,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $6te3 = $6te3 + 5
                         if ($6te3 -ge 60) {
-                        $6te3 = $6te3 - 60
-                        $6te2 = $6te2 + 1
+                            $6te3 = $6te3 - 60
+                            $6te2 = $6te2 + 1
+                            if ($6te2 -ge 60) {
+                                $6te2 = $6te2 - 60
+                                $6te1 = $6te1 + 1
+                            }
                         }
                     }
                     $6tc1 = $6te1 - $6ts1
@@ -1861,8 +2287,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $6tc3 = $6te3 - $6ts3
                     $6tc4 = $6te4 - $6ts4
                     if ($6tc3 -lt 0) {
-                    $6tc3 = $6tc3 + 60
-                    $6tc2 = $6tc2 - 1
+                        $6tc3 = $6tc3 + 60
+                        $6tc2 = $6tc2 - 1
+                        if ($6tc2 -lt 0) {
+                            $6tc2 = $6tc2 + 60
+                            $6tc1 = $6tc1 - 1
+                        }
                     }
                     if (($6tc1.tostring().length) -eq 1) {
                     $6tc1 = "0$6tc1"
@@ -1901,6 +2331,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($7ts3 -lt 0) {
                             $7ts3 = $7ts3 + 60
                             $7ts2 = $7ts2 - 1
+                            if ($7ts2 -lt 0) {
+                                $7ts2 = $7ts2 + 60
+                                $7ts1 = $7ts1 - 1
+                            }
                         }
                     }
                     $clip7te = read-host -prompt "Input End Time For Clip 7 (Format: XX:XX:XX:XX)"
@@ -1912,8 +2346,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $7te3 = $7te3 + 5
                         if ($7te3 -ge 60) {
-                        $7te3 = $7te3 - 60
-                        $7te2 = $7te2 + 1
+                            $7te3 = $7te3 - 60
+                            $7te2 = $7te2 + 1
+                            if ($7te2 -ge 60) {
+                                $7te2 = $7te2 - 60
+                                $7te1 = $7te1 + 1
+                            }
                         }
                     }
                     $7tc1 = $7te1 - $7ts1
@@ -1921,8 +2359,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $7tc3 = $7te3 - $7ts3
                     $7tc4 = $7te4 - $7ts4
                     if ($7tc3 -lt 0) {
-                    $7tc3 = $7tc3 + 60
-                    $7tc2 = $7tc2 - 1
+                        $7tc3 = $7tc3 + 60
+                        $7tc2 = $7tc2 - 1
+                        if ($7tc2 -lt 0) {
+                            $7tc2 = $7tc2 + 60
+                            $7tc1 = $7tc1 - 1
+                        }
                     }
                     if (($7tc1.tostring().length) -eq 1) {
                     $7tc1 = "0$7tc1"
@@ -1952,42 +2394,82 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip7Rt = "$7tc1`:$7tc2`:$7tc3.$7tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
+                        write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                         $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
                         while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
+                        write-host "`r                                                      " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
+                        write-host "Status: Fetching Archive Media..." -NoNewLine
                         $glink = .\bin\youtube-dl.exe -g "$inlink"
                         while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        write-host "`r                                     " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt ".\output\clip$clipnum.mkv"
+                    }
+                    if ($videotype -eq "C" -or $videotype -eq "c") {
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($tempfile) -t $clip1Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($tempfile) -t $clip2Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($tempfile) -t $clip3Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($tempfile) -t $clip4Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($tempfile) -t $clip5Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($tempfile) -t $clip6Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..."
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($tempfile) -t $clip7Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -2010,6 +2492,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1ts3 -lt 0) {
                             $1ts3 = $1ts3 + 60
                             $1ts2 = $1ts2 - 1
+                            if ($1ts2 -lt 0) {
+                                $1ts2 = $1ts2 + 60
+                                $1ts1 = $1ts1 - 1
+                            }
                         }
                     }
                     $clip1te = read-host -prompt "Input End Time For Clip 1 (Format: XX:XX:XX:XX)"
@@ -2023,6 +2509,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1te3 -ge 60) {
                             $1te3 = $1te3 - 60
                             $1te2 = $1te2 + 1
+                            if ($1te2 -ge 60) {
+                                $1te2 = $1te2 - 60
+                                $1te1 = $1te1 + 1
+                            }
                         }
                     }
                     $1tc1 = $1te1 - $1ts1
@@ -2030,8 +2520,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1tc3 = $1te3 - $1ts3
                     $1tc4 = $1te4 - $1ts4
                     if ($1tc3 -lt 0) {
-                    $1tc3 = $1tc3 + 60
-                    $1tc2 = $1tc2 - 1
+                        $1tc3 = $1tc3 + 60
+                        $1tc2 = $1tc2 - 1
+                        if ($1tc2 -lt 0) {
+                            $1tc1 = $1tc1 + 60
+                            $1tc1 = $1tc1 - 1
+                        }
                     }
                     if (($1tc1.tostring().length) -eq 1) {
                     $1tc1 = "0$1tc1"
@@ -2070,6 +2564,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2ts3 -lt 0) {
                             $2ts3 = $2ts3 + 60
                             $2ts2 = $2ts2 - 1
+                            if ($2ts2 -lt 0) {
+                                $2ts2 = $2ts2 + 60
+                                $2ts1 = $2ts1 - 1
+                            }
                         }
                     }
                     $clip2te = read-host -prompt "Input End Time For Clip 2 (Format: XX:XX:XX:XX)"
@@ -2083,6 +2581,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2te3 -ge 60) {
                             $2te3 = $2te3 - 60
                             $2te2 = $2te2 + 1
+                            if ($2te2 -ge 60) {
+                                $2te2 = $2te2 - 60
+                                $2te1 = $2te1 + 1
+                            }
                         }
                     }
                     $2tc1 = $2te1 - $2ts1
@@ -2090,8 +2592,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $2tc3 = $2te3 - $2ts3
                     $2tc4 = $2te4 - $2ts4
                     if ($2tc3 -lt 0) {
-                    $2tc3 = $2tc3 + 60
-                    $2tc2 = $2tc2 - 1
+                        $2tc3 = $2tc3 + 60
+                        $2tc2 = $2tc2 - 1
+                        if ($2tc2 -lt 0) {
+                            $2tc2 = $2tc2 + 60
+                            $2tc1 = $2tc1 - 1
+                        }
                     }
                     if (($2tc1.tostring().length) -eq 1) {
                     $2tc1 = "0$2tc1"
@@ -2130,6 +2636,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3ts3 -lt 0) {
                             $3ts3 = $3ts3 + 60
                             $3ts2 = $3ts2 - 1
+                            if ($3ts2 -lt 0) {
+                                $3ts2 = $3ts2 + 60
+                                $3ts1 = $3ts1 - 1
+                            }
                         }
                     }
                     $clip3te = read-host -prompt "Input End Time For Clip 3 (Format: XX:XX:XX:XX)"
@@ -2141,8 +2651,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $3te3 = $3te3 + 5
                         if ($3te3 -ge 60) {
-                        $3te3 = $3te3 - 60
-                        $3te2 = $3te2 + 1
+                            $3te3 = $3te3 - 60
+                            $3te2 = $3te2 + 1
+                            if ($3te2 -ge 60) {
+                                $3te2 = $3te2 - 60
+                                $3te1 = $3te1 + 1
+                            }
                         }
                     }
                     $3tc1 = $3te1 - $3ts1
@@ -2150,8 +2664,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $3tc3 = $3te3 - $3ts3
                     $3tc4 = $3te4 - $3ts4
                     if ($3tc3 -lt 0) {
-                    $3tc3 = $3tc3 + 60
-                    $3tc2 = $3tc2 - 1
+                        $3tc3 = $3tc3 + 60
+                        $3tc2 = $3tc2 - 1
+                        if ($3tc2 -lt 0) {
+                            $3tc2 = $3tc2 + 60
+                            $3tc1 = $3tc1 - 1
+                        }
                     }
                     if (($3tc1.tostring().length) -eq 1) {
                     $3tc1 = "0$3tc1"
@@ -2190,6 +2708,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($4ts3 -lt 0) {
                             $4ts3 = $4ts3 + 60
                             $4ts2 = $4ts2 - 1
+                            if ($4ts2 -lt 0) {
+                                $4ts2 = $4ts2 + 60
+                                $4ts1 = $4ts1 - 1
+                            }
                         }
                     }
                     $clip4te = read-host -prompt "Input End Time For Clip 4 (Format: XX:XX:XX:XX)"
@@ -2201,8 +2723,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $4te3 = $4te3 + 5
                         if ($4te3 -ge 60) {
-                        $4te3 = $4te3 - 60
-                        $4te2 = $4te2 + 1
+                            $4te3 = $4te3 - 60
+                            $4te2 = $4te2 + 1
+                            if ($4te2 -ge 60) {
+                                $4te2 = $4te2 - 60
+                                $4te1 = $4te1 + 1
+                            }
                         }
                     }
                     $4tc1 = $4te1 - $4ts1
@@ -2210,8 +2736,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $4tc3 = $4te3 - $4ts3
                     $4tc4 = $4te4 - $4ts4
                     if ($4tc3 -lt 0) {
-                    $4tc3 = $4tc3 + 60
-                    $4tc2 = $4tc2 - 1
+                        $4tc3 = $4tc3 + 60
+                        $4tc2 = $4tc2 - 1
+                        if ($4tc2 -lt 0) {
+                            $4tc2 = $4tc2 + 60
+                            $4tc1 = $4tc1 - 1
+                        }
                     }
                     if (($4tc1.tostring().length) -eq 1) {
                     $4tc1 = "0$4tc1"
@@ -2250,6 +2780,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($5ts3 -lt 0) {
                             $5ts3 = $5ts3 + 60
                             $5ts2 = $5ts2 - 1
+                            if ($5ts2 -lt 0) {
+                                $5ts2 = $5ts2 + 60
+                                $5ts1 = $5ts1 - 1
+                            }
                         }
                     }
                     $clip5te = read-host -prompt "Input End Time For Clip 5 (Format: XX:XX:XX:XX)"
@@ -2261,8 +2795,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $5te3 = $5te3 + 5
                         if ($5te3 -ge 60) {
-                        $5te3 = $5te3 - 60
-                        $5te2 = $5te2 + 1
+                            $5te3 = $5te3 - 60
+                            $5te2 = $5te2 + 1
+                            if ($5te2 -ge 60) {
+                                $5te2 = $5te2 - 60
+                                $5te1 = $5te1 + 1
+                            }
                         }
                     }
                     $5tc1 = $5te1 - $5ts1
@@ -2270,8 +2808,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $5tc3 = $5te3 - $5ts3
                     $5tc4 = $5te4 - $5ts4
                     if ($5tc3 -lt 0) {
-                    $5tc3 = $5tc3 + 60
-                    $5tc2 = $5tc2 - 1
+                        $5tc3 = $5tc3 + 60
+                        $5tc2 = $5tc2 - 1
+                        if ($5tc2 -lt 0) {
+                            $5tc2 = $5tc2 + 60
+                            $5tc1 = $5tc1 - 1
+                        }
                     }
                     if (($5tc1.tostring().length) -eq 1) {
                     $5tc1 = "0$5tc1"
@@ -2310,6 +2852,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($6ts3 -lt 0) {
                             $6ts3 = $6ts3 + 60
                             $6ts2 = $6ts2 - 1
+                            if ($6ts2 -lt 0) {
+                                $6ts2 = $6ts2 + 60
+                                $6ts1 = $6ts1 - 1
+                            }
                         }
                     }
                     $clip6te = read-host -prompt "Input End Time For Clip 6 (Format: XX:XX:XX:XX)"
@@ -2321,8 +2867,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $6te3 = $6te3 + 5
                         if ($6te3 -ge 60) {
-                        $6te3 = $6te3 - 60
-                        $6te2 = $6te2 + 1
+                            $6te3 = $6te3 - 60
+                            $6te2 = $6te2 + 1
+                            if ($6te2 -ge 60) {
+                                $6te2 = $6te2 - 60
+                                $6te1 = $6te1 + 1
+                            }
                         }
                     }
                     $6tc1 = $6te1 - $6ts1
@@ -2330,8 +2880,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $6tc3 = $6te3 - $6ts3
                     $6tc4 = $6te4 - $6ts4
                     if ($6tc3 -lt 0) {
-                    $6tc3 = $6tc3 + 60
-                    $6tc2 = $6tc2 - 1
+                        $6tc3 = $6tc3 + 60
+                        $6tc2 = $6tc2 - 1
+                        if ($6tc2 -lt 0) {
+                            $6tc2 = $6tc2 + 60
+                            $6tc1 = $6tc1 - 1
+                        }
                     }
                     if (($6tc1.tostring().length) -eq 1) {
                     $6tc1 = "0$6tc1"
@@ -2370,6 +2924,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($7ts3 -lt 0) {
                             $7ts3 = $7ts3 + 60
                             $7ts2 = $7ts2 - 1
+                            if ($7ts2 -lt 0) {
+                                $7ts2 = $7ts2 + 60
+                                $7ts1 = $7ts1 - 1
+                            }
                         }
                     }
                     $clip7te = read-host -prompt "Input End Time For Clip 7 (Format: XX:XX:XX:XX)"
@@ -2381,8 +2939,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $7te3 = $7te3 + 5
                         if ($7te3 -ge 60) {
-                        $7te3 = $7te3 - 60
-                        $7te2 = $7te2 + 1
+                            $7te3 = $7te3 - 60
+                            $7te2 = $7te2 + 1
+                            if ($7te2 -ge 60) {
+                                $7te2 = $7te2 - 60
+                                $7te1 = $7te1 + 1
+                            }
                         }
                     }
                     $7tc1 = $7te1 - $7ts1
@@ -2390,8 +2952,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $7tc3 = $7te3 - $7ts3
                     $7tc4 = $7te4 - $7ts4
                     if ($7tc3 -lt 0) {
-                    $7tc3 = $7tc3 + 60
-                    $7tc2 = $7tc2 - 1
+                        $7tc3 = $7tc3 + 60
+                        $7tc2 = $7tc2 - 1
+                        if ($7tc2 -lt 0) {
+                            $7tc2 = $7tc2 + 60
+                            $7tc1 = $7tc1 - 1
+                        }
                     }
                     if (($7tc1.tostring().length) -eq 1) {
                     $7tc1 = "0$7tc1"
@@ -2430,6 +2996,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($8ts3 -lt 0) {
                             $8ts3 = $8ts3 + 60
                             $8ts2 = $8ts2 - 1
+                            if ($8ts2 -lt 0) {
+                                $8ts2 = $8ts2 + 60
+                                $8ts1 = $8ts1 - 1
+                            }
                         }
                     }
                     $clip8te = read-host -prompt "Input End Time For Clip 8 (Format: XX:XX:XX:XX)"
@@ -2441,8 +3011,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $8te3 = $8te3 + 5
                         if ($8te3 -ge 60) {
-                        $8te3 = $8te3 - 60
-                        $8te2 = $8te2 + 1
+                            $8te3 = $8te3 - 60
+                            $8te2 = $8te2 + 1
+                            if ($8te2 -ge 60) {
+                                $8te2 = $8te2 - 60
+                                $8te1 = $8te1 + 1
+                            }
                         }
                     }
                     $8tc1 = $8te1 - $8ts1
@@ -2450,8 +3024,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $8tc3 = $8te3 - $8ts3
                     $8tc4 = $8te4 - $8ts4
                     if ($8tc3 -lt 0) {
-                    $8tc3 = $8tc3 + 60
-                    $8tc2 = $8tc2 - 1
+                        $8tc3 = $8tc3 + 60
+                        $8tc2 = $8tc2 - 1
+                        if ($8tc2 -lt 0) {
+                            $8tc2 = $8tc2 + 60
+                            $8tc1 = $8tc1 - 1
+                        }
                     }
                     if (($8tc1.tostring().length) -eq 1) {
                     $8tc1 = "0$8tc1"
@@ -2481,46 +3059,91 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip8Rt = "$8tc1`:$8tc2`:$8tc3.$8tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
+                        write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                         $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
                         while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
+                        write-host "`r                                                      " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 8..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink1) -t $clip8Rt -ss $clip8Sps -i ($glink2) -t $clip8Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
+                        write-host "Status: Fetching Archive Media..." -NoNewLine
                         $glink = .\bin\youtube-dl.exe -g "$inlink"
                         while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        write-host "`r                                     " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 8..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink) -t $clip8Rt ".\output\clip$clipnum.mkv"
+                    }
+                    if ($videotype -eq "C" -or $videotype -eq "c") {
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($tempfile) -t $clip1Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($tempfile) -t $clip2Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($tempfile) -t $clip3Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($tempfile) -t $clip4Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($tempfile) -t $clip5Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($tempfile) -t $clip6Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($tempfile) -t $clip7Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 8..."
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($tempfile) -t $clip8Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -2543,6 +3166,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1ts3 -lt 0) {
                             $1ts3 = $1ts3 + 60
                             $1ts2 = $1ts2 - 1
+                            if ($1ts2 -lt 0) {
+                                $1ts2 = $1ts2 + 60
+                                $1ts1 = $1ts1 - 1
+                            }
                         }
                     }
                     $clip1te = read-host -prompt "Input End Time For Clip 1 (Format: XX:XX:XX:XX)"
@@ -2556,6 +3183,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1te3 -ge 60) {
                             $1te3 = $1te3 - 60
                             $1te2 = $1te2 + 1
+                            if ($1te2 -ge 60) {
+                                $1te2 = $1te2 - 60
+                                $1te1 = $1te1 + 1
+                            }
                         }
                     }
                     $1tc1 = $1te1 - $1ts1
@@ -2563,8 +3194,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1tc3 = $1te3 - $1ts3
                     $1tc4 = $1te4 - $1ts4
                     if ($1tc3 -lt 0) {
-                    $1tc3 = $1tc3 + 60
-                    $1tc2 = $1tc2 - 1
+                        $1tc3 = $1tc3 + 60
+                        $1tc2 = $1tc2 - 1
+                        if ($1tc2 -lt 0) {
+                            $1tc1 = $1tc1 + 60
+                            $1tc1 = $1tc1 - 1
+                        }
                     }
                     if (($1tc1.tostring().length) -eq 1) {
                     $1tc1 = "0$1tc1"
@@ -2603,6 +3238,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2ts3 -lt 0) {
                             $2ts3 = $2ts3 + 60
                             $2ts2 = $2ts2 - 1
+                            if ($2ts2 -lt 0) {
+                                $2ts2 = $2ts2 + 60
+                                    $2ts1 = $2ts1 - 1
+                            }
                         }
                     }
                     $clip2te = read-host -prompt "Input End Time For Clip 2 (Format: XX:XX:XX:XX)"
@@ -2616,6 +3255,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2te3 -ge 60) {
                             $2te3 = $2te3 - 60
                             $2te2 = $2te2 + 1
+                            if ($2te2 -ge 60) {
+                                $2te2 = $2te2 - 60
+                                $2te1 = $2te1 + 1
+                            }
                         }
                     }
                     $2tc1 = $2te1 - $2ts1
@@ -2623,8 +3266,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $2tc3 = $2te3 - $2ts3
                     $2tc4 = $2te4 - $2ts4
                     if ($2tc3 -lt 0) {
-                    $2tc3 = $2tc3 + 60
-                    $2tc2 = $2tc2 - 1
+                        $2tc3 = $2tc3 + 60
+                        $2tc2 = $2tc2 - 1
+                        if ($2tc2 -lt 0) {
+                            $2tc2 = $2tc2 + 60
+                            $2tc1 = $2tc1 - 1
+                        }
                     }
                     if (($2tc1.tostring().length) -eq 1) {
                     $2tc1 = "0$2tc1"
@@ -2663,6 +3310,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3ts3 -lt 0) {
                             $3ts3 = $3ts3 + 60
                             $3ts2 = $3ts2 - 1
+                            if ($3ts2 -lt 0) {
+                                $3ts2 = $3ts2 + 60
+                                $3ts1 = $3ts1 - 1
+                            }
                         }
                     }
                     $clip3te = read-host -prompt "Input End Time For Clip 3 (Format: XX:XX:XX:XX)"
@@ -2674,8 +3325,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $3te3 = $3te3 + 5
                         if ($3te3 -ge 60) {
-                        $3te3 = $3te3 - 60
-                        $3te2 = $3te2 + 1
+                            $3te3 = $3te3 - 60
+                            $3te2 = $3te2 + 1
+                            if ($3te2 -ge 60) {
+                                $3te2 = $3te2 - 60
+                                $3te1 = $3te1 + 1
+                            }
                         }
                     }
                     $3tc1 = $3te1 - $3ts1
@@ -2683,8 +3338,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $3tc3 = $3te3 - $3ts3
                     $3tc4 = $3te4 - $3ts4
                     if ($3tc3 -lt 0) {
-                    $3tc3 = $3tc3 + 60
-                    $3tc2 = $3tc2 - 1
+                        $3tc3 = $3tc3 + 60
+                        $3tc2 = $3tc2 - 1
+                        if ($3tc2 -lt 0) {
+                            $3tc2 = $3tc2 + 60
+                            $3tc1 = $3tc1 - 1
+                        }
                     }
                     if (($3tc1.tostring().length) -eq 1) {
                     $3tc1 = "0$3tc1"
@@ -2723,6 +3382,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($4ts3 -lt 0) {
                             $4ts3 = $4ts3 + 60
                             $4ts2 = $4ts2 - 1
+                            if ($4ts2 -lt 0) {
+                                $4ts2 = $4ts2 + 60
+                                $4ts1 = $4ts1 - 1
+                            }
                         }
                     }
                     $clip4te = read-host -prompt "Input End Time For Clip 4 (Format: XX:XX:XX:XX)"
@@ -2734,8 +3397,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $4te3 = $4te3 + 5
                         if ($4te3 -ge 60) {
-                        $4te3 = $4te3 - 60
-                        $4te2 = $4te2 + 1
+                            $4te3 = $4te3 - 60
+                            $4te2 = $4te2 + 1
+                            if ($4te2 -ge 60) {
+                                $4te2 = $4te2 - 60
+                                $4te1 = $4te1 + 1
+                            }
                         }
                     }
                     $4tc1 = $4te1 - $4ts1
@@ -2743,8 +3410,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $4tc3 = $4te3 - $4ts3
                     $4tc4 = $4te4 - $4ts4
                     if ($4tc3 -lt 0) {
-                    $4tc3 = $4tc3 + 60
-                    $4tc2 = $4tc2 - 1
+                        $4tc3 = $4tc3 + 60
+                        $4tc2 = $4tc2 - 1
+                        if ($4tc2 -lt 0) {
+                            $4tc2 = $4tc2 + 60
+                            $4tc1 = $4tc1 - 1
+                        }
                     }
                     if (($4tc1.tostring().length) -eq 1) {
                     $4tc1 = "0$4tc1"
@@ -2783,6 +3454,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($5ts3 -lt 0) {
                             $5ts3 = $5ts3 + 60
                             $5ts2 = $5ts2 - 1
+                            if ($5ts2 -lt 0) {
+                                $5ts2 = $5ts2 + 60
+                                $5ts1 = $5ts1 - 1
+                            }
                         }
                     }
                     $clip5te = read-host -prompt "Input End Time For Clip 5 (Format: XX:XX:XX:XX)"
@@ -2794,8 +3469,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $5te3 = $5te3 + 5
                         if ($5te3 -ge 60) {
-                        $5te3 = $5te3 - 60
-                        $5te2 = $5te2 + 1
+                            $5te3 = $5te3 - 60
+                            $5te2 = $5te2 + 1
+                            if ($5te2 -ge 60) {
+                                $5te2 = $5te2 - 60
+                                $5te1 = $5te1 + 1
+                            }
                         }
                     }
                     $5tc1 = $5te1 - $5ts1
@@ -2803,8 +3482,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $5tc3 = $5te3 - $5ts3
                     $5tc4 = $5te4 - $5ts4
                     if ($5tc3 -lt 0) {
-                    $5tc3 = $5tc3 + 60
-                    $5tc2 = $5tc2 - 1
+                        $5tc3 = $5tc3 + 60
+                        $5tc2 = $5tc2 - 1
+                        if ($5tc2 -lt 0) {
+                            $5tc2 = $5tc2 + 60
+                            $5tc1 = $5tc1 - 1
+                        }
                     }
                     if (($5tc1.tostring().length) -eq 1) {
                     $5tc1 = "0$5tc1"
@@ -2843,6 +3526,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($6ts3 -lt 0) {
                             $6ts3 = $6ts3 + 60
                             $6ts2 = $6ts2 - 1
+                            if ($6ts2 -lt 0) {
+                                $6ts2 = $6ts2 + 60
+                                $6ts1 = $6ts1 - 1
+                            }
                         }
                     }
                     $clip6te = read-host -prompt "Input End Time For Clip 6 (Format: XX:XX:XX:XX)"
@@ -2854,8 +3541,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $6te3 = $6te3 + 5
                         if ($6te3 -ge 60) {
-                        $6te3 = $6te3 - 60
-                        $6te2 = $6te2 + 1
+                            $6te3 = $6te3 - 60
+                            $6te2 = $6te2 + 1
+                            if ($6te2 -ge 60) {
+                                $6te2 = $6te2 - 60
+                                $6te1 = $6te1 + 1
+                            }
                         }
                     }
                     $6tc1 = $6te1 - $6ts1
@@ -2863,8 +3554,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $6tc3 = $6te3 - $6ts3
                     $6tc4 = $6te4 - $6ts4
                     if ($6tc3 -lt 0) {
-                    $6tc3 = $6tc3 + 60
-                    $6tc2 = $6tc2 - 1
+                        $6tc3 = $6tc3 + 60
+                        $6tc2 = $6tc2 - 1
+                        if ($6tc2 -lt 0) {
+                            $6tc2 = $6tc2 + 60
+                            $6tc1 = $6tc1 - 1
+                        }
                     }
                     if (($6tc1.tostring().length) -eq 1) {
                     $6tc1 = "0$6tc1"
@@ -2903,6 +3598,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($7ts3 -lt 0) {
                             $7ts3 = $7ts3 + 60
                             $7ts2 = $7ts2 - 1
+                            if ($7ts2 -lt 0) {
+                                $7ts2 = $7ts2 + 60
+                                $7ts1 = $7ts1 - 1
+                            }
                         }
                     }
                     $clip7te = read-host -prompt "Input End Time For Clip 7 (Format: XX:XX:XX:XX)"
@@ -2914,8 +3613,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $7te3 = $7te3 + 5
                         if ($7te3 -ge 60) {
-                        $7te3 = $7te3 - 60
-                        $7te2 = $7te2 + 1
+                            $7te3 = $7te3 - 60
+                            $7te2 = $7te2 + 1
+                            if ($7te2 -ge 60) {
+                                $7te2 = $7te2 - 60
+                                $7te1 = $7te1 + 1
+                            }
                         }
                     }
                     $7tc1 = $7te1 - $7ts1
@@ -2923,8 +3626,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $7tc3 = $7te3 - $7ts3
                     $7tc4 = $7te4 - $7ts4
                     if ($7tc3 -lt 0) {
-                    $7tc3 = $7tc3 + 60
-                    $7tc2 = $7tc2 - 1
+                        $7tc3 = $7tc3 + 60
+                        $7tc2 = $7tc2 - 1
+                        if ($7tc2 -lt 0) {
+                            $7tc2 = $7tc2 + 60
+                            $7tc1 = $7tc1 - 1
+                        }
                     }
                     if (($7tc1.tostring().length) -eq 1) {
                     $7tc1 = "0$7tc1"
@@ -2963,6 +3670,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($8ts3 -lt 0) {
                             $8ts3 = $8ts3 + 60
                             $8ts2 = $8ts2 - 1
+                            if ($8ts2 -lt 0) {
+                                $8ts2 = $8ts2 + 60
+                                $8ts1 = $8ts1 - 1
+                            }
                         }
                     }
                     $clip8te = read-host -prompt "Input End Time For Clip 8 (Format: XX:XX:XX:XX)"
@@ -2974,8 +3685,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $8te3 = $8te3 + 5
                         if ($8te3 -ge 60) {
-                        $8te3 = $8te3 - 60
-                        $8te2 = $8te2 + 1
+                            $8te3 = $8te3 - 60
+                            $8te2 = $8te2 + 1
+                            if ($8te2 -ge 60) {
+                                $8te2 = $8te2 - 60
+                                $8te1 = $8te1 + 1
+                            }
                         }
                     }
                     $8tc1 = $8te1 - $8ts1
@@ -2983,8 +3698,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $8tc3 = $8te3 - $8ts3
                     $8tc4 = $8te4 - $8ts4
                     if ($8tc3 -lt 0) {
-                    $8tc3 = $8tc3 + 60
-                    $8tc2 = $8tc2 - 1
+                        $8tc3 = $8tc3 + 60
+                        $8tc2 = $8tc2 - 1
+                        if ($8tc2 -lt 0) {
+                            $8tc2 = $8tc2 + 60
+                            $8tc1 = $8tc1 - 1
+                        }
                     }
                     if (($8tc1.tostring().length) -eq 1) {
                     $8tc1 = "0$8tc1"
@@ -3023,6 +3742,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($9ts3 -lt 0) {
                             $9ts3 = $9ts3 + 60
                             $9ts2 = $9ts2 - 1
+                            if ($9ts2 -lt 0) {
+                                $9ts2 = $9ts2 + 60
+                                $9ts1 = $9ts1 - 1
+                            }
                         }
                     }
                     $clip9te = read-host -prompt "Input End Time For Clip 9 (Format: XX:XX:XX:XX)"
@@ -3034,8 +3757,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $9te3 = $9te3 + 5
                         if ($9te3 -ge 60) {
-                        $9te3 = $9te3 - 60
-                        $9te2 = $9te2 + 1
+                            $9te3 = $9te3 - 60
+                            $9te2 = $9te2 + 1
+                            if ($9te2 -ge 60) {
+                                $9te2 = $9te2 - 60
+                                $9te1 = $9te1 + 1
+                            }
                         }
                     }
                     $9tc1 = $9te1 - $9ts1
@@ -3043,8 +3770,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $9tc3 = $9te3 - $9ts3
                     $9tc4 = $9te4 - $9ts4
                     if ($9tc3 -lt 0) {
-                    $9tc3 = $9tc3 + 60
-                    $9tc2 = $9tc2 - 1
+                        $9tc3 = $9tc3 + 60
+                        $9tc2 = $9tc2 - 1
+                        if ($9tc2 -lt 0) {
+                            $9tc2 = $9tc2 + 60
+                            $9tc1 = $9tc1 - 1
+                        }
                     }
                     if (($9tc1.tostring().length) -eq 1) {
                     $9tc1 = "0$9tc1"
@@ -3074,50 +3805,100 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip9Rt = "$9tc1`:$9tc2`:$9tc3.$9tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
+                        write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                         $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
                         while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
+                        write-host "`r                                                      " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 8..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink1) -t $clip8Rt -ss $clip8Sps -i ($glink2) -t $clip8Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 9..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($glink1) -t $clip9Rt -ss $clip9Sps -i ($glink2) -t $clip9Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
+                        write-host "Status: Fetching Archive Media..." -NoNewLine
                         $glink = .\bin\youtube-dl.exe -g "$inlink"
                         while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        write-host "`r                                     " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 8..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink) -t $clip8Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 9..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($glink) -t $clip9Rt ".\output\clip$clipnum.mkv"
+                    }
+                    if ($videotype -eq "C" -or $videotype -eq "c") {
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($tempfile) -t $clip1Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($tempfile) -t $clip2Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($tempfile) -t $clip3Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($tempfile) -t $clip4Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($tempfile) -t $clip5Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($tempfile) -t $clip6Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($tempfile) -t $clip7Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 8..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($tempfile) -t $clip8Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 9..."
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($tempfile) -t $clip9Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -3140,6 +3921,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1ts3 -lt 0) {
                             $1ts3 = $1ts3 + 60
                             $1ts2 = $1ts2 - 1
+                            if ($1ts2 -lt 0) {
+                                $1ts2 = $1ts2 + 60
+                                $1ts1 = $1ts1 - 1
+                            }
                         }
                     }
                     $clip1te = read-host -prompt "Input End Time For Clip 1 (Format: XX:XX:XX:XX)"
@@ -3153,6 +3938,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($1te3 -ge 60) {
                             $1te3 = $1te3 - 60
                             $1te2 = $1te2 + 1
+                            if ($1te2 -ge 60) {
+                                $1te2 = $1te2 - 60
+                                $1te1 = $1te1 + 1
+                            }
                         }
                     }
                     $1tc1 = $1te1 - $1ts1
@@ -3160,8 +3949,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $1tc3 = $1te3 - $1ts3
                     $1tc4 = $1te4 - $1ts4
                     if ($1tc3 -lt 0) {
-                    $1tc3 = $1tc3 + 60
-                    $1tc2 = $1tc2 - 1
+                        $1tc3 = $1tc3 + 60
+                        $1tc2 = $1tc2 - 1
+                        if ($1tc2 -lt 0) {
+                            $1tc1 = $1tc1 + 60
+                            $1tc1 = $1tc1 - 1
+                        }
                     }
                     if (($1tc1.tostring().length) -eq 1) {
                     $1tc1 = "0$1tc1"
@@ -3200,6 +3993,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2ts3 -lt 0) {
                             $2ts3 = $2ts3 + 60
                             $2ts2 = $2ts2 - 1
+                            if ($2ts2 -lt 0) {
+                                $2ts2 = $2ts2 + 60
+                                    $2ts1 = $2ts1 - 1
+                            }
                         }
                     }
                     $clip2te = read-host -prompt "Input End Time For Clip 2 (Format: XX:XX:XX:XX)"
@@ -3213,6 +4010,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($2te3 -ge 60) {
                             $2te3 = $2te3 - 60
                             $2te2 = $2te2 + 1
+                            if ($2te2 -ge 60) {
+                                $2te2 = $2te2 - 60
+                                $2te1 = $2te1 + 1
+                            }
                         }
                     }
                     $2tc1 = $2te1 - $2ts1
@@ -3220,8 +4021,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $2tc3 = $2te3 - $2ts3
                     $2tc4 = $2te4 - $2ts4
                     if ($2tc3 -lt 0) {
-                    $2tc3 = $2tc3 + 60
-                    $2tc2 = $2tc2 - 1
+                        $2tc3 = $2tc3 + 60
+                        $2tc2 = $2tc2 - 1
+                        if ($2tc2 -lt 0) {
+                            $2tc2 = $2tc2 + 60
+                            $2tc1 = $2tc1 - 1
+                        }
                     }
                     if (($2tc1.tostring().length) -eq 1) {
                     $2tc1 = "0$2tc1"
@@ -3260,6 +4065,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($3ts3 -lt 0) {
                             $3ts3 = $3ts3 + 60
                             $3ts2 = $3ts2 - 1
+                            if ($3ts2 -lt 0) {
+                                $3ts2 = $3ts2 + 60
+                                $3ts1 = $3ts1 - 1
+                            }
                         }
                     }
                     $clip3te = read-host -prompt "Input End Time For Clip 3 (Format: XX:XX:XX:XX)"
@@ -3271,8 +4080,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $3te3 = $3te3 + 5
                         if ($3te3 -ge 60) {
-                        $3te3 = $3te3 - 60
-                        $3te2 = $3te2 + 1
+                            $3te3 = $3te3 - 60
+                            $3te2 = $3te2 + 1
+                            if ($3te2 -ge 60) {
+                                $3te2 = $3te2 - 60
+                                $3te1 = $3te1 + 1
+                            }
                         }
                     }
                     $3tc1 = $3te1 - $3ts1
@@ -3280,8 +4093,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $3tc3 = $3te3 - $3ts3
                     $3tc4 = $3te4 - $3ts4
                     if ($3tc3 -lt 0) {
-                    $3tc3 = $3tc3 + 60
-                    $3tc2 = $3tc2 - 1
+                        $3tc3 = $3tc3 + 60
+                        $3tc2 = $3tc2 - 1
+                        if ($3tc2 -lt 0) {
+                            $3tc2 = $3tc2 + 60
+                            $3tc1 = $3tc1 - 1
+                        }
                     }
                     if (($3tc1.tostring().length) -eq 1) {
                     $3tc1 = "0$3tc1"
@@ -3320,6 +4137,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($4ts3 -lt 0) {
                             $4ts3 = $4ts3 + 60
                             $4ts2 = $4ts2 - 1
+                            if ($4ts2 -lt 0) {
+                                $4ts2 = $4ts2 + 60
+                                $4ts1 = $4ts1 - 1
+                            }
                         }
                     }
                     $clip4te = read-host -prompt "Input End Time For Clip 4 (Format: XX:XX:XX:XX)"
@@ -3331,8 +4152,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $4te3 = $4te3 + 5
                         if ($4te3 -ge 60) {
-                        $4te3 = $4te3 - 60
-                        $4te2 = $4te2 + 1
+                            $4te3 = $4te3 - 60
+                            $4te2 = $4te2 + 1
+                            if ($4te2 -ge 60) {
+                                $4te2 = $4te2 - 60
+                                $4te1 = $4te1 + 1
+                            }
                         }
                     }
                     $4tc1 = $4te1 - $4ts1
@@ -3340,8 +4165,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $4tc3 = $4te3 - $4ts3
                     $4tc4 = $4te4 - $4ts4
                     if ($4tc3 -lt 0) {
-                    $4tc3 = $4tc3 + 60
-                    $4tc2 = $4tc2 - 1
+                        $4tc3 = $4tc3 + 60
+                        $4tc2 = $4tc2 - 1
+                        if ($4tc2 -lt 0) {
+                            $4tc2 = $4tc2 + 60
+                            $4tc1 = $4tc1 - 1
+                        }
                     }
                     if (($4tc1.tostring().length) -eq 1) {
                     $4tc1 = "0$4tc1"
@@ -3380,6 +4209,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($5ts3 -lt 0) {
                             $5ts3 = $5ts3 + 60
                             $5ts2 = $5ts2 - 1
+                            if ($5ts2 -lt 0) {
+                                $5ts2 = $5ts2 + 60
+                                $5ts1 = $5ts1 - 1
+                            }
                         }
                     }
                     $clip5te = read-host -prompt "Input End Time For Clip 5 (Format: XX:XX:XX:XX)"
@@ -3391,8 +4224,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $5te3 = $5te3 + 5
                         if ($5te3 -ge 60) {
-                        $5te3 = $5te3 - 60
-                        $5te2 = $5te2 + 1
+                            $5te3 = $5te3 - 60
+                            $5te2 = $5te2 + 1
+                            if ($5te2 -ge 60) {
+                                $5te2 = $5te2 - 60
+                                $5te1 = $5te1 + 1
+                            }
                         }
                     }
                     $5tc1 = $5te1 - $5ts1
@@ -3400,8 +4237,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $5tc3 = $5te3 - $5ts3
                     $5tc4 = $5te4 - $5ts4
                     if ($5tc3 -lt 0) {
-                    $5tc3 = $5tc3 + 60
-                    $5tc2 = $5tc2 - 1
+                        $5tc3 = $5tc3 + 60
+                        $5tc2 = $5tc2 - 1
+                        if ($5tc2 -lt 0) {
+                            $5tc2 = $5tc2 + 60
+                            $5tc1 = $5tc1 - 1
+                        }
                     }
                     if (($5tc1.tostring().length) -eq 1) {
                     $5tc1 = "0$5tc1"
@@ -3440,6 +4281,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($6ts3 -lt 0) {
                             $6ts3 = $6ts3 + 60
                             $6ts2 = $6ts2 - 1
+                            if ($6ts2 -lt 0) {
+                                $6ts2 = $6ts2 + 60
+                                $6ts1 = $6ts1 - 1
+                            }
                         }
                     }
                     $clip6te = read-host -prompt "Input End Time For Clip 6 (Format: XX:XX:XX:XX)"
@@ -3451,8 +4296,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $6te3 = $6te3 + 5
                         if ($6te3 -ge 60) {
-                        $6te3 = $6te3 - 60
-                        $6te2 = $6te2 + 1
+                            $6te3 = $6te3 - 60
+                            $6te2 = $6te2 + 1
+                            if ($6te2 -ge 60) {
+                                $6te2 = $6te2 - 60
+                                $6te1 = $6te1 + 1
+                            }
                         }
                     }
                     $6tc1 = $6te1 - $6ts1
@@ -3460,8 +4309,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $6tc3 = $6te3 - $6ts3
                     $6tc4 = $6te4 - $6ts4
                     if ($6tc3 -lt 0) {
-                    $6tc3 = $6tc3 + 60
-                    $6tc2 = $6tc2 - 1
+                        $6tc3 = $6tc3 + 60
+                        $6tc2 = $6tc2 - 1
+                        if ($6tc2 -lt 0) {
+                            $6tc2 = $6tc2 + 60
+                            $6tc1 = $6tc1 - 1
+                        }
                     }
                     if (($6tc1.tostring().length) -eq 1) {
                     $6tc1 = "0$6tc1"
@@ -3500,6 +4353,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($7ts3 -lt 0) {
                             $7ts3 = $7ts3 + 60
                             $7ts2 = $7ts2 - 1
+                            if ($7ts2 -lt 0) {
+                                $7ts2 = $7ts2 + 60
+                                $7ts1 = $7ts1 - 1
+                            }
                         }
                     }
                     $clip7te = read-host -prompt "Input End Time For Clip 7 (Format: XX:XX:XX:XX)"
@@ -3511,8 +4368,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $7te3 = $7te3 + 5
                         if ($7te3 -ge 60) {
-                        $7te3 = $7te3 - 60
-                        $7te2 = $7te2 + 1
+                            $7te3 = $7te3 - 60
+                            $7te2 = $7te2 + 1
+                            if ($7te2 -ge 60) {
+                                $7te2 = $7te2 - 60
+                                $7te1 = $7te1 + 1
+                            }
                         }
                     }
                     $7tc1 = $7te1 - $7ts1
@@ -3520,8 +4381,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $7tc3 = $7te3 - $7ts3
                     $7tc4 = $7te4 - $7ts4
                     if ($7tc3 -lt 0) {
-                    $7tc3 = $7tc3 + 60
-                    $7tc2 = $7tc2 - 1
+                        $7tc3 = $7tc3 + 60
+                        $7tc2 = $7tc2 - 1
+                        if ($7tc2 -lt 0) {
+                            $7tc2 = $7tc2 + 60
+                            $7tc1 = $7tc1 - 1
+                        }
                     }
                     if (($7tc1.tostring().length) -eq 1) {
                     $7tc1 = "0$7tc1"
@@ -3560,6 +4425,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($8ts3 -lt 0) {
                             $8ts3 = $8ts3 + 60
                             $8ts2 = $8ts2 - 1
+                            if ($8ts2 -lt 0) {
+                                $8ts2 = $8ts2 + 60
+                                $8ts1 = $8ts1 - 1
+                            }
                         }
                     }
                     $clip8te = read-host -prompt "Input End Time For Clip 8 (Format: XX:XX:XX:XX)"
@@ -3571,8 +4440,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $8te3 = $8te3 + 5
                         if ($8te3 -ge 60) {
-                        $8te3 = $8te3 - 60
-                        $8te2 = $8te2 + 1
+                            $8te3 = $8te3 - 60
+                            $8te2 = $8te2 + 1
+                            if ($8te2 -ge 60) {
+                                $8te2 = $8te2 - 60
+                                $8te1 = $8te1 + 1
+                            }
                         }
                     }
                     $8tc1 = $8te1 - $8ts1
@@ -3580,8 +4453,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $8tc3 = $8te3 - $8ts3
                     $8tc4 = $8te4 - $8ts4
                     if ($8tc3 -lt 0) {
-                    $8tc3 = $8tc3 + 60
-                    $8tc2 = $8tc2 - 1
+                        $8tc3 = $8tc3 + 60
+                        $8tc2 = $8tc2 - 1
+                        if ($8tc2 -lt 0) {
+                            $8tc2 = $8tc2 + 60
+                            $8tc1 = $8tc1 - 1
+                        }
                     }
                     if (($8tc1.tostring().length) -eq 1) {
                     $8tc1 = "0$8tc1"
@@ -3620,6 +4497,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($9ts3 -lt 0) {
                             $9ts3 = $9ts3 + 60
                             $9ts2 = $9ts2 - 1
+                            if ($9ts2 -lt 0) {
+                                $9ts2 = $9ts2 + 60
+                                $9ts1 = $9ts1 - 1
+                            }
                         }
                     }
                     $clip9te = read-host -prompt "Input End Time For Clip 9 (Format: XX:XX:XX:XX)"
@@ -3631,8 +4512,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $9te3 = $9te3 + 5
                         if ($9te3 -ge 60) {
-                        $9te3 = $9te3 - 60
-                        $9te2 = $9te2 + 1
+                            $9te3 = $9te3 - 60
+                            $9te2 = $9te2 + 1
+                            if ($9te2 -ge 60) {
+                                $9te2 = $9te2 - 60
+                                $9te1 = $9te1 + 1
+                            }
                         }
                     }
                     $9tc1 = $9te1 - $9ts1
@@ -3640,8 +4525,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $9tc3 = $9te3 - $9ts3
                     $9tc4 = $9te4 - $9ts4
                     if ($9tc3 -lt 0) {
-                    $9tc3 = $9tc3 + 60
-                    $9tc2 = $9tc2 - 1
+                        $9tc3 = $9tc3 + 60
+                        $9tc2 = $9tc2 - 1
+                        if ($9tc2 -lt 0) {
+                            $9tc2 = $9tc2 + 60
+                            $9tc1 = $9tc1 - 1
+                        }
                     }
                     if (($9tc1.tostring().length) -eq 1) {
                     $9tc1 = "0$9tc1"
@@ -3680,6 +4569,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                         if ($10ts3 -lt 0) {
                             $10ts3 = $10ts3 + 60
                             $10ts2 = $10ts2 - 1
+                            if ($10ts2 -lt 0) {
+                                $10ts2 = $10ts2 + 60
+                                $10ts1 = $10ts1 - 1
+                            }
                         }
                     }
                     $clip10te = read-host -prompt "Input End Time For Clip 10 (Format: XX:XX:XX:XX)"
@@ -3691,8 +4584,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                         $10te3 = $10te3 + 5
                         if ($10te3 -ge 60) {
-                        $10te3 = $10te3 - 60
-                        $10te2 = $10te2 + 1
+                            $10te3 = $10te3 - 60
+                            $10te2 = $10te2 + 1
+                            if ($10te2 -ge 60) {
+                                $10te2 = $10te2 - 60
+                                $10te1 = $10te1 + 1
+                            }
                         }
                     }
                     $10tc1 = $10te1 - $10ts1
@@ -3700,8 +4597,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $10tc3 = $10te3 - $10ts3
                     $10tc4 = $10te4 - $10ts4
                     if ($10tc3 -lt 0) {
-                    $10tc3 = $10tc3 + 60
-                    $10tc2 = $10tc2 - 1
+                        $10tc3 = $10tc3 + 60
+                        $10tc2 = $10tc2 - 1
+                        if ($10tc2 -lt 0) {
+                            $10tc2 = $10tc2 + 60
+                            $10tc1 = $10tc1 - 1
+                        }
                     }
                     if (($10tc1.tostring().length) -eq 1) {
                     $10tc1 = "0$10tc1"
@@ -3731,54 +4632,109 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     $clip10Rt = "$10tc1`:$10tc2`:$10tc3.$10tc4"
                     if ($videotype -eq "A" -or $videotype -eq "a") {
                         #youtube-dl command grabs the file links for video and audio
+                        write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                         $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                         #this makes sure youtube-dl actually gets the links, and doesn't fail.
                         while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                         #splits the one large link string given by youtube-dl into two sperate string variables for use in the ffmpeg commands
                         $glink1,$glink2 = $glinks.split(" ")
                         if (!$glink2) {$glink2 = $glink1}
+                        write-host "`r                                                      " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink1) -t $clip1Rt -ss $clip1Sps -i ($glink2) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink1) -t $clip2Rt -ss $clip2Sps -i ($glink2) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink1) -t $clip3Rt -ss $clip3Sps -i ($glink2) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink1) -t $clip4Rt -ss $clip4Sps -i ($glink2) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink1) -t $clip5Rt -ss $clip5Sps -i ($glink2) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink1) -t $clip6Rt -ss $clip6Sps -i ($glink2) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink1) -t $clip7Rt -ss $clip7Sps -i ($glink2) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 8..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink1) -t $clip8Rt -ss $clip8Sps -i ($glink2) -t $clip8Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 9..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($glink1) -t $clip9Rt -ss $clip9Sps -i ($glink2) -t $clip9Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 10..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip10Sps -i ($glink1) -t $clip10Rt -ss $clip10Sps -i ($glink2) -t $clip10Rt ".\output\clip$clipnum.mkv"
                     }
                     if ($videotype -eq "B" -or $videotype -eq "b") {
-                        $glink = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
-                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
+                        write-host "Status: Fetching Archive Media..." -NoNewLine
+                        $glink = .\bin\youtube-dl.exe -g "$inlink"
+                        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+                        write-host "`r                                   " -NoNewLine
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($glink) -t $clip1Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($glink) -t $clip2Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($glink) -t $clip3Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($glink) -t $clip4Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($glink) -t $clip5Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($glink) -t $clip6Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($glink) -t $clip7Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 8..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($glink) -t $clip8Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 9..." -NoNewLine
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($glink) -t $clip9Rt ".\output\clip$clipnum.mkv"
                         $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 10..."
                         .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip10Sps -i ($glink) -t $clip10Rt ".\output\clip$clipnum.mkv"
+                    }
+                    if ($videotype -eq "C" -or $videotype -eq "c") {
+                        write-host "`rStatus: Writing Clip 1..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip1Sps -i ($tempfile) -t $clip1Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 2..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip2Sps -i ($tempfile) -t $clip2Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 3..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip3Sps -i ($tempfile) -t $clip3Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 4..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip4Sps -i ($tempfile) -t $clip4Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 5..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip5Sps -i ($tempfile) -t $clip5Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 6..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip6Sps -i ($tempfile) -t $clip6Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 7..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip7Sps -i ($tempfile) -t $clip7Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 8..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip8Sps -i ($tempfile) -t $clip8Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 9..." -NoNewLine
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip9Sps -i ($tempfile) -t $clip9Rt ".\output\clip$clipnum.mkv"
+                        $clipnum = $clipnum + 1
+                        write-host "`rStatus: Writing Clip 10..."
+                        .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $clip10Sps -i ($tempfile) -t $clip10Rt ".\output\clip$clipnum.mkv"
                     }
                     $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
                     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
@@ -3786,6 +4742,7 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                     }
                     else {
                         write-host "Clipping Complete!"
+                        read-host -prompt "Press [ENTER] To Close The Tool"
                         return
                     }
                 }
@@ -3804,6 +4761,10 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                 if ($ts3 -lt 0) {
                     $ts3 = $ts3 + 60
                     $ts2 = $ts2 - 1
+                    if ($ts2 -lt 0) {
+                        $ts2 = $ts2 + 60
+                        $ts1 = $ts1 - 1
+                    }
                 }
             }
             $timestampEin = read-host -prompt "Input End Time (Format: XX:XX:XX:XX)"
@@ -3815,8 +4776,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
             if ($cliptype -eq "Y" -or $cliptype -eq "y") {
                 $te3 = $te3 + 5
                 if ($te3 -ge 60) {
-                $te3 = $te3 - 60
-                $te2 = $te2 + 1
+                    $te3 = $te3 - 60
+                    $te2 = $te2 + 1
+                    if ($te2 -ge 60) {
+                        $te2 = $te2 - 60
+                        $te1 = $te1 + 1
+                    }
                 }
             }
             $tc1 = $te1 - $ts1
@@ -3824,8 +4789,12 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
             $tc3 = $te3 - $ts3
             $tc4 = $te4 - $ts4
             if ($tc3 -lt 0) {
-            $tc3 = $tc3 + 60
-            $tc2 = $tc2 - 1
+                $tc3 = $tc3 + 60
+                $tc2 = $tc2 - 1
+                if ($tc2 -lt 0) {
+                    $tc2 = $tc2 + 60
+                    $tc1 = $tc1 - 1
+                }
             }
             if (($tc1.tostring().length) -eq 1) {
             $tc1 = "0$tc1"
@@ -3855,16 +4824,28 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
             $timestampRt = "$tc1`:$tc2`:$tc3.$tc4"
             $clipnum = read-host -prompt 'Clip Number'
             if ($videotype -eq "A" -or $videotype -eq "a") {
+                write-host "Status: Fetching YouTube Media Links..." -NoNewLine
                 $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
                 while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
                 $glink1,$glink2 = $glinks.split(" ")
                 if (!$glink2) {$glink2 = $glink1}
+                write-host "`r                                          " -NoNewLine
+                write-host "`rStatus: Writing Clip..."
                 .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i ($glink1) -t $timestampRt -ss $timestampSps -i ($glink2) -t $timestampRt ".\output\clip$clipnum.mkv"
+                write-host "Clipping Complete!"
+                read-host -prompt "Press [ENTER] To Close The Tool"
+                return
             }
             if ($videotype -eq "B" -or $videotype -eq "b") {
-                $glink = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
+                write-host "Status: Fetching Archive Media Links..." -NoNewLine
+                $glink = .\bin\youtube-dl.exe -g "$inlink"
                 while (!$glink) {$glink = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
+                write-host "`r                                        " -NoNewLine
+                write-host "`rStatus: Writing Clip..."
                 .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i ($glink) -t $timestampRt ".\output\clip$clipnum.mkv"
+                write-host "Clipping Complete!"
+                read-host -prompt "Press [ENTER] To Close The Tool"
+                return
             }
             if ($videotype -eq "C" -or $videotype -eq "c") {
                 $fullclipnum = read-host -prompt 'Clip Number'
@@ -3873,183 +4854,14 @@ C) Local File (MUST be titled `"clipDL`" with extension MKV, MP4, or WEBM)
                 if (test-path ".\clipDL.mkv" -pathtype leaf) {$tempFile = ".\clipDL.mkv"}
                 if (test-path ".\clipDL.webm" -pathtype leaf) {$tempFile = ".\clipDL.webm"}
                 if (test-path ".\clipDL.mp4" -pathtype leaf) {$tempFile = ".\clipDL.mp4"}
-                .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i $tempFile -t $timestampEps -c copy ".\output\clip$clipnum.mkv"
-                $delete = read-host -prompt 'Do you want to remove the original file?'
-                if ($delete -eq 'Y' -or $delete -eq 'y') {remove-item $tempFile }
+                write-host "Status: Writing Clip..."
+                .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i $tempFile -t $timestampRt -c copy ".\output\clip$clipnum.mkv"
                 else {
                     write-host "Clipping Complete!"
+                    read-host -prompt "Press [ENTER] To Close The Tool"
                     return
                 }
             }
-            }
-    }
-    #the "local file" case is the antiquated code for clipping from a local file titled "clipDL.(mkv, mp4, webm)"
-    #It still works just fine, it's just structured differently than the two other cases.
-    if ($videotype -eq "C" -or $videotype -eq "c") {
-            $timestampSin = read-host -prompt "Input Start Time (Format: XX:XX:XX:XX)"
-            $ts1,$ts2,$ts3,$ts4 = $timestampSin.split(":")
-            $ts1 = [int]$ts1
-            $ts2 = [int]$ts2
-            $ts3 = [int]$ts3
-            $ts4 = [int]$ts4
-            if ($cliptype -eq "Y" -or $cliptype -eq "y") {
-                $ts3 = $ts3 - 5
-                if ($ts3 -lt 0) {
-                    $ts3 = $ts3 + 60
-                    $ts2 = $ts2 - 1
-                }
-            }
-            $timestampSps = "$ts1`:$ts2`:$ts3.$ts4"
-            $timestampEin = read-host -prompt "Input End Time (Format: XX:XX:XX:XX)"
-            $te1,$te2,$te3,$te4 = $timestampEin.split(":")
-            $te1 = [int]$te1
-            $te2 = [int]$te2
-            $te3 = [int]$te3
-            $te4 = [int]$te4
-            if ($cliptype -eq "Y" -or $cliptype -eq "y") {
-                $te3 = $te3 + 5
-                if ($te3 -ge 60) {
-                $te3 = $te3 - 60
-                $te2 = $te2 + 1
-                }
-            }
-            $tc1 = $te1 - $ts1
-            $tc2 = $te2 - $ts2
-            $tc3 = $te3 - $ts3
-            $tc4 = $te4 - $ts4
-            if ($tc3 -lt 0) {
-            $tc3 = $tc3 + 60
-            $tc2 = $tc2 - 1
-            }
-            if (($tc1.tostring().length) -eq 1) {
-            $tc1 = "0$tc1"
-            }
-            if (($tc2.tostring().length) -eq 1) {
-            $tc2 = "0$tc2"
-            }
-            if (($tc3.tostring().length) -eq 1) {
-            $tc3 = "0$tc3"
-            }
-            if (($tc4.tostring().length) -eq 1) {
-            $tc4 = "0$tc4"
-            }
-            if (($ts1.tostring().length) -eq 1) {
-            $ts1 = "0$ts1"
-            }
-            if (($ts2.tostring().length) -eq 1) {
-            $ts2 = "0$ts2"
-            }
-            if (($ts3.tostring().length) -eq 1) {
-            $ts3 = "0$ts3"
-            }
-            if (($ts4.tostring().length) -eq 1) {
-            $ts4 = "0$ts4"
-            }
-            $timestampSps = "$ts1`:$ts2`:$ts3.$ts4"
-            $timestampEps = "$tc1`:$tc2`:$tc3.$tc4"
-            $miniclip = read-host -prompt 'Clip Has Miniclips? [Y/N]'
-            if ($miniclip -eq "Y" -or $miniclip -eq "y") {
-                $clipnum = 1
-                $miniclipnum = read-host -prompt 'Number Of Miniclips (1-10)'
-                $miniclipnum = [int]$miniclipnum
-                #this is residual code from the old script. It basically checks for an extensionless "clipDL" file and gives it an extension.
-                if (test-path ".\clipDL" -pathtype leaf) {rename-item -path ".\clipDL" -newname ".\clipDL.mkv"}
-                $tempfile = ".\clipDL.mkv"
-                #redefine the tempfile based off of which one exists in the working directory.
-                if (test-path ".\clipDL.mkv" -pathtype leaf) {$tempFile = ".\clipDL.mkv"}
-                if (test-path ".\clipDL.webm" -pathtype leaf) {$tempFile = ".\clipDL.webm"}
-                if (test-path ".\clipDL.mp4" -pathtype leaf) {$tempFile = ".\clipDL.mp4"}
-                #here's the old code for taking miniclips. It's more efficient than the spaghetti above, but less user-friendly imo.
-                while ($miniclipnum -gt 0) {
-                    .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i $tempFile -t $timestampEps -c copy ".\output\clip$clipnum.mkv"
-                    $timestampSin = read-host -prompt "Input Start Time (Format: XX:XX:XX:XX)"
-                    $ts1,$ts2,$ts3,$ts4 = $timestampSin.split(":")
-                    $ts1 = [int]$ts1
-                    $ts2 = [int]$ts2
-                    $ts3 = [int]$ts3
-                    $ts4 = [int]$ts4
-                    if ($cliptype -eq "Y" -or $cliptype -eq "y") {
-                        $ts3 = $ts3 - 5
-                        if ($ts3 -lt 0) {
-                            $ts3 = $ts3 + 60
-                            $ts2 = $ts2 - 1
-                        }
-                    }
-                    $timestampSps = "$ts1`:$ts2`:$ts3.$ts4"
-                    $timestampEin = read-host -prompt "Input End Time (Format: XX:XX:XX:XX)"
-                    $te1,$te2,$te3,$te4 = $timestampEin.split(":")
-                    $te1 = [int]$te1
-                    $te2 = [int]$te2
-                    $te3 = [int]$te3
-                    $te4 = [int]$te4
-                    if ($cliptype -eq "Y" -or $cliptype -eq "y") {
-                        $te3 = $te3 + 5
-                        if ($te3 -ge 60) {
-                        $te3 = $te3 - 60
-                        $te2 = $te2 + 1
-                        }
-                    }
-                    $tc1 = $te1 - $ts1
-                    $tc2 = $te2 - $ts2
-                    $tc3 = $te3 - $ts3
-                    $tc4 = $te4 - $ts4
-                    if ($tc3 -lt 0) {
-                    $tc3 = $tc3 + 60
-                    $tc2 = $tc2 - 1
-                    }
-                    if (($tc1.tostring().length) -eq 1) {
-                    $tc1 = "0$tc1"
-                    }
-                    if (($tc2.tostring().length) -eq 1) {
-                    $tc2 = "0$tc2"
-                    }
-                    if (($tc3.tostring().length) -eq 1) {
-                    $tc3 = "0$tc3"
-                    }
-                    if (($tc4.tostring().length) -eq 1) {
-                    $tc4 = "0$tc4"
-                    }
-                    if (($ts1.tostring().length) -eq 1) {
-                    $ts1 = "0$ts1"
-                    }
-                    if (($ts2.tostring().length) -eq 1) {
-                    $ts2 = "0$ts2"
-                    }
-                    if (($ts3.tostring().length) -eq 1) {
-                    $ts3 = "0$ts3"
-                    }
-                    if (($ts4.tostring().length) -eq 1) {
-                    $ts4 = "0$ts4"
-                    }
-                    $timestampSps = "$ts1`:$ts2`:$ts3.$ts4"
-                    $timestampEps = "$tc1`:$tc2`:$tc3.$tc4"
-                    $clipnum = $clipnum + 1
-                    $miniclipnum = $miniclipnum - 1
-                    } 
-                    remove-item $tempFile
-                $needsstitching = read-host -prompt 'Do you want to stitch clips? [Y/N]'
-                if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
-                    &$HoloStitcher
-                }
-                else {
-                    return
-                    write-host "Clipping Complete!"
-                }
-            }
-            else {
-                $fullclipnum = read-host -prompt 'Clip Number'
-                $clipnum = $fullclipnum
-                $tempfile = ".\clipDL.mkv"
-                if (test-path ".\clipDL.mkv" -pathtype leaf) {$tempFile = ".\clipDL.mkv"}
-                if (test-path ".\clipDL.webm" -pathtype leaf) {$tempFile = ".\clipDL.webm"}
-                if (test-path ".\clipDL.mp4" -pathtype leaf) {$tempFile = ".\clipDL.mp4"}
-                .\bin\ffmpeg.exe -hide_banner -loglevel error -ss $timestampSps -i $tempFile -t $timestampEps -c copy ".\output\clip$clipnum.mkv"
-                $delete = read-host -prompt 'Do you want to remove the original file?'
-                if ($delete -eq 'Y' -or $delete -eq 'y') {remove-item $tempFile }
-                else {
-                    write-host "Clipping Complete!"
-                    return
-                }
             }
     }
     else {return}
@@ -4061,7 +4873,9 @@ write-host "
 |                                                  |
 |      Made With Copious Amounts Of Self-Hate      |
 |                                                  |
-|              Version 1.0 Alpha 1                 |
+|              Version 1.0 Alpha 2                 |
 |                                                  |
+|   Please Review The README Before Attempting To  | 
+|                 Use This Tool.                   |
 "
 &$HololiveClipper
