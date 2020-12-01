@@ -8,4 +8,5 @@ Standalone PowerShell Script:
 
 Release Binaries:
 1) None
+
 NOTE: In a future version of the tool, I will be adding support for CUDA. Once this is implemented, you will need to have the Nvidia CUDA Toolkit installed.
