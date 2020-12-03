@@ -36,9 +36,9 @@
             this.label2 = new System.Windows.Forms.Label();
             this.mediaLinkLabel = new System.Windows.Forms.Label();
             this.mediaLinkInput = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.isLocalFile = new System.Windows.Forms.CheckBox();
+            this.timestampsInput = new System.Windows.Forms.TextBox();
+            this.clipFromYT = new System.Windows.Forms.CheckBox();
+            this.clipFromLocalFile = new System.Windows.Forms.CheckBox();
             this.isHoloRewind = new System.Windows.Forms.CheckBox();
             this.localFileDirectory = new System.Windows.Forms.TextBox();
             this.localFileLabel = new System.Windows.Forms.Label();
@@ -46,6 +46,7 @@
             this.clipNameInput = new System.Windows.Forms.TextBox();
             this.clipNameLabel = new System.Windows.Forms.Label();
             this.timestampsLabel = new System.Windows.Forms.Label();
+            this.clipFromOtherSite = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // startClip
@@ -119,42 +120,43 @@
             this.mediaLinkInput.Size = new System.Drawing.Size(290, 20);
             this.mediaLinkInput.TabIndex = 6;
             // 
-            // textBox2
+            // timestampsInput
             // 
-            this.textBox2.Location = new System.Drawing.Point(105, 45);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(290, 20);
-            this.textBox2.TabIndex = 7;
+            this.timestampsInput.Location = new System.Drawing.Point(105, 45);
+            this.timestampsInput.Name = "timestampsInput";
+            this.timestampsInput.Size = new System.Drawing.Size(290, 20);
+            this.timestampsInput.TabIndex = 7;
             // 
-            // checkBox1
+            // clipFromYT
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(104, 194);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(80, 17);
-            this.checkBox1.TabIndex = 8;
-            this.checkBox1.Text = "checkBox1";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.clipFromYT.AutoSize = true;
+            this.clipFromYT.Location = new System.Drawing.Point(258, 148);
+            this.clipFromYT.Name = "clipFromYT";
+            this.clipFromYT.Size = new System.Drawing.Size(116, 17);
+            this.clipFromYT.TabIndex = 8;
+            this.clipFromYT.Text = "Clip From YouTube";
+            this.clipFromYT.UseVisualStyleBackColor = true;
+            this.clipFromYT.CheckedChanged += new System.EventHandler(this.clipFromYT_CheckedChanged);
             // 
-            // isLocalFile
+            // clipFromLocalFile
             // 
-            this.isLocalFile.AutoSize = true;
-            this.isLocalFile.Location = new System.Drawing.Point(258, 147);
-            this.isLocalFile.Name = "isLocalFile";
-            this.isLocalFile.Size = new System.Drawing.Size(137, 17);
-            this.isLocalFile.TabIndex = 9;
-            this.isLocalFile.Text = "Clipping From Local File";
-            this.isLocalFile.UseVisualStyleBackColor = true;
-            this.isLocalFile.CheckedChanged += new System.EventHandler(this.isLocalFile_CheckedChanged);
+            this.clipFromLocalFile.AutoSize = true;
+            this.clipFromLocalFile.Location = new System.Drawing.Point(257, 194);
+            this.clipFromLocalFile.Name = "clipFromLocalFile";
+            this.clipFromLocalFile.Size = new System.Drawing.Size(117, 17);
+            this.clipFromLocalFile.TabIndex = 9;
+            this.clipFromLocalFile.Text = "Clip From Local File";
+            this.clipFromLocalFile.UseVisualStyleBackColor = true;
+            this.clipFromLocalFile.CheckedChanged += new System.EventHandler(this.clipFromLocalFile_CheckedChanged);
             // 
             // isHoloRewind
             // 
             this.isHoloRewind.AutoSize = true;
-            this.isHoloRewind.Location = new System.Drawing.Point(104, 171);
+            this.isHoloRewind.Location = new System.Drawing.Point(12, 171);
             this.isHoloRewind.Name = "isHoloRewind";
-            this.isHoloRewind.Size = new System.Drawing.Size(167, 17);
+            this.isHoloRewind.Size = new System.Drawing.Size(135, 17);
             this.isHoloRewind.TabIndex = 10;
-            this.isHoloRewind.Text = "Clip to HoloRewind Standards";
+            this.isHoloRewind.Text = "HoloRewind Standards";
             this.isHoloRewind.UseVisualStyleBackColor = true;
             // 
             // localFileDirectory
@@ -211,11 +213,23 @@
             this.timestampsLabel.TabIndex = 16;
             this.timestampsLabel.Text = "Timestamps:";
             // 
+            // clipFromOtherSite
+            // 
+            this.clipFromOtherSite.AutoSize = true;
+            this.clipFromOtherSite.Location = new System.Drawing.Point(257, 171);
+            this.clipFromOtherSite.Name = "clipFromOtherSite";
+            this.clipFromOtherSite.Size = new System.Drawing.Size(149, 17);
+            this.clipFromOtherSite.TabIndex = 17;
+            this.clipFromOtherSite.Text = "Clip From Other Video Site";
+            this.clipFromOtherSite.UseVisualStyleBackColor = true;
+            this.clipFromOtherSite.CheckedChanged += new System.EventHandler(this.clipFromOtherSite_CheckedChanged);
+            // 
             // HoloClipper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(438, 264);
+            this.Controls.Add(this.clipFromOtherSite);
             this.Controls.Add(this.timestampsLabel);
             this.Controls.Add(this.clipNameLabel);
             this.Controls.Add(this.clipNameInput);
@@ -223,9 +237,9 @@
             this.Controls.Add(this.localFileLabel);
             this.Controls.Add(this.localFileDirectory);
             this.Controls.Add(this.isHoloRewind);
-            this.Controls.Add(this.isLocalFile);
-            this.Controls.Add(this.checkBox1);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.clipFromLocalFile);
+            this.Controls.Add(this.clipFromYT);
+            this.Controls.Add(this.timestampsInput);
             this.Controls.Add(this.mediaLinkInput);
             this.Controls.Add(this.mediaLinkLabel);
             this.Controls.Add(this.label2);
@@ -252,9 +266,9 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label mediaLinkLabel;
         private System.Windows.Forms.TextBox mediaLinkInput;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.CheckBox isLocalFile;
+        private System.Windows.Forms.TextBox timestampsInput;
+        private System.Windows.Forms.CheckBox clipFromYT;
+        private System.Windows.Forms.CheckBox clipFromLocalFile;
         private System.Windows.Forms.CheckBox isHoloRewind;
         private System.Windows.Forms.TextBox localFileDirectory;
         private System.Windows.Forms.Label localFileLabel;
@@ -262,6 +276,7 @@
         private System.Windows.Forms.TextBox clipNameInput;
         private System.Windows.Forms.Label clipNameLabel;
         private System.Windows.Forms.Label timestampsLabel;
+        private System.Windows.Forms.CheckBox clipFromOtherSite;
     }
 }
 

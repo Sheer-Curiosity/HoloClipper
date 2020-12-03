@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,30 +27,56 @@ namespace GUITest1
 
         private void startClip_Click(object sender, EventArgs e)
         {
-            Process process = new Process();
-
-            process.StartInfo.FileName = "powershell.exe";
-            process.StartInfo.Arguments = $"-executionpolicy unrestricted -windowstyle hidden youtube-dl -g --youtube-skip-dash-manifest {mediaLinkInput.Text}";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-            string[] split = output.Split();
-            if (split.Length == 1)
+            if (clipDLDirectory.Text == "")
             {
-                string link1 = split[0];
-                string link2 = link1;
+                MessageBox.Show("String Error: No Output Directory Given", "Error");
             }
-            else if (split.Length < 2)
+            else if (mediaLinkInput.Enabled == true && mediaLinkInput.Text == "")
             {
-                MessageBox.Show("Link Error", "Error");
+                MessageBox.Show("String Error: No Media Link Given", "Error");
             }
-            else if (split.Length >= 2)
+            else if (localFileDirectory.Enabled == true && localFileDirectory.Text == "")
             {
-                string link1 = split[0];
-                string link2 = split[1];
-                Console.WriteLine(link1);
+                MessageBox.Show("String Error: No Local File Given", "Error");
+            }
+            else if (timestampsInput.Text == "")
+            {
+                MessageBox.Show("String Error: No Timestamps Given", "Error");
+            }
+            else if (clipFromYT.Checked == false && clipFromOtherSite.Checked == false && clipFromLocalFile.Checked == false)
+            {
+                MessageBox.Show("Input Error: No Clipping Source Was Specified", "Error");
+            }
+            else
+            {
+                if (clipFromYT.Checked == true)
+                {
+                    string clipNameIn = clipNameInput.Text;
+                    string mediaLinkIn = mediaLinkInput.Text;
+                    string timestampsIn = $"\"{timestampsInput.Text}\"";
+                    string downloadDir = clipDLDirectory.Text;
+                    var downloadDirSafe = downloadDir.Replace(" ", "` ");
+                    Console.WriteLine(timestampsIn);
+                    Console.WriteLine(downloadDir);
+                    System.Threading.Thread.Sleep(1000);
+                    PowerShell ytdlTest = PowerShell.Create();
+                    string cmd = $"./GUIScriptA1.exe -fulltitle {clipNameIn} -videotype a -inlink {mediaLinkIn} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
+                    ytdlTest.AddScript(cmd);
+                    ytdlTest.Invoke();
+                    MessageBox.Show("Clipping Complete!", "Notice");
+                }
+                else if (clipFromOtherSite.Checked == true)
+                {
+                    string clipNameIn = clipNameInput.Text;
+                    string mediaLinkIn = mediaLinkInput.Text;
+                    string timestampsIn = timestampsInput.Text;
+                    string downloadDir = clipDLDirectory.Text;
+                    PowerShell ytdlTest = PowerShell.Create();
+                    string cmd = $"./GUIScriptA1.exe -fulltitle {clipNameIn} -videotype b -inlink {mediaLinkIn} -dlDir {downloadDir} -timestampsIn {timestampsIn}";
+                    ytdlTest.AddScript(cmd);
+                    ytdlTest.Invoke();
+                    MessageBox.Show("Clipping Complete!", "Notice");
+                }
             }
 
         }
@@ -70,8 +97,19 @@ namespace GUITest1
             }
         }
 
-        private void isLocalFile_CheckedChanged(object sender, EventArgs e)
+        private void clipFromLocalFile_CheckedChanged(object sender, EventArgs e)
         {
+            if (clipFromYT.Enabled == true)
+            {
+                clipFromYT.Enabled = false;
+                clipFromOtherSite.Enabled = false;
+            }
+            else if (clipFromYT.Enabled == false)
+            {
+                clipFromYT.Enabled = true;
+                clipFromOtherSite.Enabled = true;
+            }
+
             if (localFileLabel.Enabled == false)
             {
                 localFileLabel.Enabled = true;
@@ -91,6 +129,34 @@ namespace GUITest1
                 mediaLinkLabel.Enabled = true;
                 mediaLinkInput.Enabled = true;
                 mediaLinkInput.Text = "";
+            }
+        }
+
+        private void clipFromOtherSite_CheckedChanged(object sender, EventArgs e)
+        {
+            if (clipFromLocalFile.Enabled == true)
+            {
+                clipFromYT.Enabled = false;
+                clipFromLocalFile.Enabled = false;
+            }
+            else if (clipFromLocalFile.Enabled == false)
+            {
+                clipFromYT.Enabled = true;
+                clipFromLocalFile.Enabled = true;
+            }
+        }
+
+        private void clipFromYT_CheckedChanged(object sender, EventArgs e)
+        {
+            if (clipFromOtherSite.Enabled == true)
+            {
+                clipFromOtherSite.Enabled = false;
+                clipFromLocalFile.Enabled = false;
+            }
+            else if (clipFromOtherSite.Enabled == false)
+            {
+                clipFromOtherSite.Enabled = true;
+                clipFromLocalFile.Enabled = true;
             }
         }
     }
