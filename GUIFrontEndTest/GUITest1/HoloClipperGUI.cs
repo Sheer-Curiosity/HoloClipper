@@ -51,6 +51,12 @@ namespace GUITest1
             {
                 if (clipFromYT.Checked == true)
                 {
+                    string hlrwStandard = "n";
+                    if (isHoloRewind.Checked == true)
+                    {
+                        hlrwStandard = "y";
+                    }
+
                     string clipNameIn = clipNameInput.Text;
                     string mediaLinkIn = mediaLinkInput.Text;
                     string timestampsIn = $"\"{timestampsInput.Text}\"";
@@ -60,19 +66,46 @@ namespace GUITest1
                     Console.WriteLine(downloadDir);
                     System.Threading.Thread.Sleep(1000);
                     PowerShell ytdlTest = PowerShell.Create();
-                    string cmd = $"./GUIScriptA1.exe -fulltitle {clipNameIn} -videotype a -inlink {mediaLinkIn} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
+                    string cmd = $"./bin/GUIScriptA1.exe -fulltitle {clipNameIn} -videotype a -hlrwstandards {hlrwStandard} -inlink {mediaLinkIn} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
                     ytdlTest.AddScript(cmd);
                     ytdlTest.Invoke();
                     MessageBox.Show("Clipping Complete!", "Notice");
                 }
                 else if (clipFromOtherSite.Checked == true)
                 {
+                    string hlrwStandard = "n";
+                    if (isHoloRewind.Checked == true)
+                    {
+                        hlrwStandard = "y";
+                    }
+
                     string clipNameIn = clipNameInput.Text;
                     string mediaLinkIn = mediaLinkInput.Text;
-                    string timestampsIn = timestampsInput.Text;
+                    string timestampsIn = $"\"{timestampsInput.Text}\"";
                     string downloadDir = clipDLDirectory.Text;
+                    var downloadDirSafe = downloadDir.Replace(" ", "` ");
                     PowerShell ytdlTest = PowerShell.Create();
-                    string cmd = $"./GUIScriptA1.exe -fulltitle {clipNameIn} -videotype b -inlink {mediaLinkIn} -dlDir {downloadDir} -timestampsIn {timestampsIn}";
+                    string cmd = $"./bin/GUIScriptA1.exe -fulltitle {clipNameIn} -videotype b -hlrwstandards {hlrwStandard} -inlink {mediaLinkIn} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
+                    ytdlTest.AddScript(cmd);
+                    ytdlTest.Invoke();
+                    MessageBox.Show("Clipping Complete!", "Notice");
+                }
+                else if (clipFromLocalFile.Checked == true)
+                {
+                    string hlrwStandard = "n";
+                    if (isHoloRewind.Checked == true)
+                    {
+                        hlrwStandard = "y";
+                    }
+
+                    string clipNameIn = clipNameInput.Text;
+                    string tempFileIn = localFileDirectory.Text;
+                    string timestampsIn = $"\"{timestampsInput.Text}\"";
+                    string downloadDir = clipDLDirectory.Text;
+                    var downloadDirSafe = downloadDir.Replace(" ", "` ");
+                    var tempFileInSafe = tempFileIn.Replace(" ", "` ");
+                    PowerShell ytdlTest = PowerShell.Create();
+                    string cmd = $"./bin/GUIScriptA1.exe -fulltitle {clipNameIn} -videotype c -hlrwstandards {hlrwStandard} -tempfile {tempFileInSafe} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
                     ytdlTest.AddScript(cmd);
                     ytdlTest.Invoke();
                     MessageBox.Show("Clipping Complete!", "Notice");
