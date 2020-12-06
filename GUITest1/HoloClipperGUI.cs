@@ -66,7 +66,7 @@ namespace GUITest1
                     Console.WriteLine(downloadDir);
                     System.Threading.Thread.Sleep(1000);
                     PowerShell ytdlTest = PowerShell.Create();
-                    string cmd = $"./bin/GUIScriptA1.exe -fulltitle {clipNameIn} -videotype a -hlrwstandards {hlrwStandard} -inlink {mediaLinkIn} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
+                    string cmd = $"./bin/clipper.exe -fulltitle {clipNameIn} -videotype a -hlrwstandards {hlrwStandard} -inlink {mediaLinkIn} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
                     ytdlTest.AddScript(cmd);
                     ytdlTest.Invoke();
                     MessageBox.Show("Clipping Complete!", "Notice");
@@ -85,7 +85,7 @@ namespace GUITest1
                     string downloadDir = clipDLDirectory.Text;
                     var downloadDirSafe = downloadDir.Replace(" ", "` ");
                     PowerShell ytdlTest = PowerShell.Create();
-                    string cmd = $"./bin/GUIScriptA1.exe -fulltitle {clipNameIn} -videotype b -hlrwstandards {hlrwStandard} -inlink {mediaLinkIn} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
+                    string cmd = $"./bin/clipper.exe -fulltitle {clipNameIn} -videotype b -hlrwstandards {hlrwStandard} -inlink {mediaLinkIn} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
                     ytdlTest.AddScript(cmd);
                     ytdlTest.Invoke();
                     MessageBox.Show("Clipping Complete!", "Notice");
@@ -105,7 +105,7 @@ namespace GUITest1
                     var downloadDirSafe = downloadDir.Replace(" ", "` ");
                     var tempFileInSafe = tempFileIn.Replace(" ", "` ");
                     PowerShell ytdlTest = PowerShell.Create();
-                    string cmd = $"./bin/GUIScriptA1.exe -fulltitle {clipNameIn} -videotype c -hlrwstandards {hlrwStandard} -tempfile {tempFileInSafe} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
+                    string cmd = $"./bin/clipper.exe -fulltitle {clipNameIn} -videotype c -hlrwstandards {hlrwStandard} -tempfile {tempFileInSafe} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn}";
                     ytdlTest.AddScript(cmd);
                     ytdlTest.Invoke();
                     MessageBox.Show("Clipping Complete!", "Notice");
@@ -191,6 +191,11 @@ namespace GUITest1
                 clipFromOtherSite.Enabled = true;
                 clipFromLocalFile.Enabled = true;
             }
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("https://youtu.be/1vU4kjeCy4k");
         }
     }
 }

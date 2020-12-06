@@ -1,0 +1,291 @@
+param (
+    [string]$fulltitle = "output",
+    [string]$videotype = $null,
+    [string]$hlrwStandards = "n",
+    [string]$inlink = $null,
+    [string]$miniclip = "y",
+    [string]$tempfile = $null,
+    [string]$dlDir = ".",
+    [string]$timestampsIn = $null,
+    [string]$needsstitching = "y"
+)
+
+$tempdir = [System.IO.Path]::GetTempPath()
+$tempdir = $tempdir.trim("\")
+
+function parser($clipstamps) {
+    $clipTimestamps=$clipstamps.trim("[]")
+        $clip1st1,$clip1st2=$clipTimestamps.split("-")
+        $c1st1array=$clip1st1.split(":")
+        $c1st2array=$clip1st2.split(":")
+        $c1a1,$c1a2,$c1a3=$clip1st1.split(":")
+        $c1b1,$c1b2,$c1b3=$clip1st2.split(":")
+        $c1a1 = [int]$c1a1
+        $c1a2 = [int]$c1a2
+        $c1a3 = [int]$c1a3
+        $c1b1 = [int]$c1b1
+        $c1b2 = [int]$c1b2
+        $c1b3 = [int]$c1b3
+        if ($c1st1array.length -eq 2) {
+            if (($c1a1.tostring().length) -eq 1) {
+                $c1a1 = "0$c1a1"
+            }
+            if (($c1a2.tostring().length) -eq 1) {
+                $c1a2 = "0$c1a2"
+            }
+            $tsin = "00`:$c1a1`:$c1a2`:00"
+        }
+        if ($c1st1array.length -eq 3) {
+            if (($c1a1.tostring().length) -eq 1) {
+                $c1a1 = "0$c1a1"
+            }
+            if (($c1a2.tostring().length) -eq 1) {
+                $c1a2 = "0$c1a2"
+            }
+            if (($c1a3.tostring().length) -eq 1) {
+                $c1a3 = "0$c1a3"
+            }
+            $tsin = "$c1a1`:$c1a2`:$c1a3`:00"
+        }
+        if ($c1st2array.length -eq 2) {
+            if (($c1b1.tostring().length) -eq 1) {
+                $c1b1 = "0$c1b1"
+            }
+            if (($c1b2.tostring().length) -eq 1) {
+                $c1b2 = "0$c1b2"
+            }
+            $tein = "00`:$c1b1`:$c1b2`:00"
+        }
+        if ($c1st2array.length -eq 3) {
+            if (($c1b1.tostring().length) -eq 1) {
+                $c1b1 = "0$c1b1"
+            }
+            if (($c1b2.tostring().length) -eq 1) {
+                $c1b2 = "0$c1b2"
+            }
+            if (($c1b3.tostring().length) -eq 1) {
+                $c1b3 = "0$c1b3"
+            }
+            $tein = "$c1b1`:$c1b2`:$c1b3`:00"
+        }
+    $clipts = $tsin.split(":")
+    $clipts1 = [int]$clipts[0] #1ts1
+    $clipts2 = [int]$clipts[1] #1ts2
+    $clipts3 = [int]$clipts[2] #1ts3
+    $clipts4 = [int]$clipts[3] #1ts4
+    if ($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") {
+        if ($clipts3 -lt 5 -and $clipts2 -eq 0 -and $clipts1 -eq 0) {
+            $clipts3 = 0
+        }
+        else {
+            $clipts3 = $clipts3 - 5
+            if ($clipts3 -lt 0) {
+                    $clipts3 = $clipts3 + 60
+                    $clipts2 = $clipts2 - 1
+                    if ($clipts2 -lt 0) {
+                        $clipts2 = $clipts2 + 60
+                        $clipts1 = $clipts1 - 1
+                    }
+            }
+        }
+    }
+    $clipte = $tein.split(":")
+    $clipte1 = [int]$clipte[0] #1te1
+    $clipte2 = [int]$clipte[1] #1te2
+    $clipte3 = [int]$clipte[2] #1te3
+    $clipte4 = [int]$clipte[3] #1te4
+    if ($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") {
+        $clipte3 = $clipte3 + 5
+        if ($clipte3 -ge 60) {
+            $clipte3 = $clipte3 - 60
+            $clipte2 = $clipte2 + 1
+            if ($clipte2 -ge 60) {
+                $clipte2 = $clipte2 - 60
+                $clipte1 = $clipte1 + 1
+            }
+        }
+    }
+    $cliptc1 = $clipte1 - $clipts1
+    $cliptc2 = $clipte2 - $clipts2
+    $cliptc3 = $clipte3 - $clipts3
+    $cliptc4 = $clipte4 - $clipts4
+    if ($cliptc3 -lt 0) {
+        $cliptc3 = $cliptc3 + 60
+        $cliptc2 = $cliptc2 - 1
+        if ($cliptc2 -lt 0) {
+            $cliptc2 = $cliptc2 + 60
+            $cliptc1 = $cliptc1 - 1
+        }
+    }
+    if (($cliptc1.tostring().length) -eq 1) {
+        $cliptc1 = "0$cliptc1"
+    }
+    if (($cliptc2.tostring().length) -eq 1) {
+        $cliptc2 = "0$cliptc2"
+    }
+    if (($cliptc3.tostring().length) -eq 1) {
+        $cliptc3 = "0$cliptc3"
+    }
+    if (($cliptc4.tostring().length) -eq 1) {
+        $cliptc4 = "0$cliptc4"
+    }
+    if (($clipts1.tostring().length) -eq 1) {
+        $clipts1 = "0$clipts1"
+    }
+    if (($clipts2.tostring().length) -eq 1) {
+        $clipts2 = "0$clipts2"
+    }
+    if (($clipts3.tostring().length) -eq 1) {
+        $clipts3 = "0$clipts3"
+    }
+    if (($clipts4.tostring().length) -eq 1) {
+        $clipts4 = "0$clipts4"
+    }
+    $clipSps = "$clipts1`:$clipts2`:$clipts3.$clipts4"
+    $clipRt = "$cliptc1`:$cliptc2`:$cliptc3.$cliptc4"
+    return $clipSps, $clipRt
+}
+
+$stitcher = {
+    if ($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") {
+        $clipresolution = ffprobe.exe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$tempdir\clip1.mkv"
+        .\bin\ffmpeg.exe -y -hide_banner  -f lavfi -i color=black:s="$clipresolution":r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 "$tempdir\blackscreen.mkv"
+        if ($miniclipnum -eq 2) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0]concat=n=3:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 3) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip3.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0]concat=n=5:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 4) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip4.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0]concat=n=7:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 5) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip5.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0]concat=n=9:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 6) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip6.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0]concat=n=11:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 7) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip6.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip7.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0]concat=n=13:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 8) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip6.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip7.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip8.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0]concat=n=15:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 9) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip6.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip7.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip8.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip9.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0][15:v:0][15:a:0][16:v:0][16:a:0]concat=n=17:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 10) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip6.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip7.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip8.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip9.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip10.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0][10:v:0][10:a:0][11:v:0][11:a:0][12:v:0][12:a:0][13:v:0][13:a:0][14:v:0][14:a:0][15:v:0][15:a:0][16:v:0][16:a:0][17:v:0][17:a:0][18:v:0][18:a:0]concat=n=19:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+    }
+    else {
+        if ($miniclipnum -eq 2) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\clip2.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0]concat=n=2:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 3) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\clip3.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0]concat=n=3:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 4) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\clip4.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0]concat=n=4:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 5) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\clip5.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0]concat=n=5:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 6) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\clip6.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0]concat=n=6:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 7) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\clip6.mkv" -i "$tempdir\clip7.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0]concat=n=7:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 8) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\clip6.mkv" -i "$tempdir\clip7.mkv" -i "$tempdir\clip8.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0]concat=n=8:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 9) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\clip6.mkv" -i "$tempdir\clip7.mkv" -i "$tempdir\clip8.mkv" -i "$tempdir\clip9.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0]concat=n=9:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+        if ($miniclipnum -eq 10) {
+            .\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\clip2.mkv" -i "$tempdir\clip3.mkv" -i "$tempdir\clip4.mkv" -i "$tempdir\clip5.mkv" -i "$tempdir\clip6.mkv" -i "$tempdir\clip7.mkv" -i "$tempdir\clip8.mkv" -i "$tempdir\clip9.mkv" -i "$tempdir\clip10.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0][3:v:0][3:a:0][4:v:0][4:a:0][5:v:0][5:a:0][6:v:0][6:a:0][7:v:0][7:a:0][8:v:0][8:a:0][9:v:0][9:a:0]concat=n=10:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
+        }
+    }
+}
+
+$HololiveClipper = {
+    $miniclipnum = $timestampsIn.split(",").length
+    $parserNum = $timestampsIn.split(",").length
+    $clipsSps = @()
+    $clipsRt = @()
+    $clipnum = 0
+    $clipnumout = 1
+    write-host $parserNum
+    $clipStamps=$timestampsIn.split(",")
+    if ($videotype -eq "A" -or $videotype -eq "a") {
+        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
+        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
+        $glink1,$glink2 = $glinks.split(" ")
+        if (!$glink2) {$glink2 = $glink1}
+    }
+    if ($videotype -eq "B" -or $videotype -eq "b") {
+        $glink = .\bin\youtube-dl.exe -g "$inlink"
+        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+    }
+    while ($parserNum -gt 0) {
+        $parserOut = parser $clipStamps[$clipnum]
+        $clipsSps += $parserOut[0]
+        $clipsRt += $parserOut[1]
+        if ($videotype -eq "A" -or $videotype -eq "a") {
+            if ($miniclipnum -eq 1) {
+                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.mkv"
+            }
+            if ($miniclipnum -ge 2) {
+                .\bin\ffmpeg.exe -y -hide_banner -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+            }
+        }
+        if ($videotype -eq "B" -or $videotype -eq "b") {
+            if ($miniclipnum -eq 1) {
+                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.mkv"
+            }
+            if ($miniclipnum -ge 2) {
+                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+            }
+        }
+        if ($videotype -eq "C" -or $videotype -eq "c") {
+            if ($miniclipnum -eq 1) {
+                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.mkv"
+            }
+            if ($miniclipnum -ge 2) {
+                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+            }
+        }
+        $clipnum = $clipnum + 1
+        $clipnumout = $clipnumout + 1
+        $parserNum = $parserNum - 1
+    }
+    if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
+        if ($miniclipnum -ge 2) {
+            &$stitcher
+            $parsernum = $miniclipnum
+            $clipnumout = 1
+            if ($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") {
+                remove-item "$tempdir\blackscreen.mkv"  
+            }
+            while ($parserNum -gt 0) {
+                remove-Item -path "$tempdir\clip$clipnumout.mkv"
+                $clipnumout = $clipnumout + 1
+                $parserNum = $parserNum - 1
+            }
+        }
+        else {return}
+    }
+    else {return}
+}
+write-host $fulltitle
+write-host $videotype
+write-host $hlrwStandards
+write-host $inlink
+write-host $miniclip
+write-host $tempfile
+write-host $dlDir
+write-host $timestampsIn
+write-host $needsstitching
+write-host $tempdir
+&$HololiveClipper

@@ -1,0 +1,1 @@
+.\bin\ffmpeg.exe -y -hide_banner  -i "$tempdir\clip1.mkv" -i "$tempdir\blackscreen.mkv" -i "$tempdir\clip2.mkv" -filter_complex "[0:v:0][0:a:0][1:v:0][1:a:0][2:v:0][2:a:0]concat=n=3:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -x264-params keyint=24:min-keyint=1 "$dlDir\$fulltitle.mkv"
