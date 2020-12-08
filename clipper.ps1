@@ -7,7 +7,8 @@ param (
     [string]$tempfile = $null,
     [string]$dlDir = ".",
     [string]$timestampsIn = $null,
-    [string]$needsstitching = "y"
+    [string]$needsstitching = "y",
+    [string]$fileOutExt = "mkv"
 )
 $tempdir = [System.IO.Path]::GetTempPath()
 $tempdir = $tempdir.trim("\")
@@ -169,7 +170,7 @@ $clipper = {
         $clipsRt += $parserOut[1]
         if ($videotype -eq "A" -or $videotype -eq "a") {
             if ($miniclipnum -eq 1) {
-                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.mkv"
+                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
             }
             if ($miniclipnum -ge 2) {
                 .\bin\ffmpeg.exe -y -hide_banner -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
@@ -186,7 +187,7 @@ $clipper = {
         }
         if ($videotype -eq "B" -or $videotype -eq "b") {
             if ($miniclipnum -eq 1) {
-                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.mkv"
+                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
             }
             if ($miniclipnum -ge 2) {
                 .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
@@ -194,7 +195,7 @@ $clipper = {
         }
         if ($videotype -eq "C" -or $videotype -eq "c") {
             if ($miniclipnum -eq 1) {
-                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.mkv"
+                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
             }
             if ($miniclipnum -ge 2) {
                 .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
@@ -206,7 +207,7 @@ $clipper = {
         $parserNum = $parserNum - 1
     }
     $stitchCmdMapInputs = $stitchCmdMapInputs + "concat=n=$stitchCmdMapInputsCount`:v=1:a=1[outv][outa]"
-    $stitchCmd = ".\bin\ffmpeg.exe -y -hide_banner $stitchCmdInputs -filter_complex `"$stitchCmdMapInputs`" -map `"[outv]`" -map `"[outa]`" -x264-params keyint=24:min-keyint=1 `"$dlDir\$fulltitle.mkv`""
+    $stitchCmd = ".\bin\ffmpeg.exe -y -hide_banner $stitchCmdInputs -filter_complex `"$stitchCmdMapInputs`" -map `"[outv]`" -map `"[outa]`" -x264-params keyint=24:min-keyint=1 `"$dlDir\$fulltitle.$fileOutExt`""
     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
         if ($miniclipnum -ge 2) {
             if ($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") {

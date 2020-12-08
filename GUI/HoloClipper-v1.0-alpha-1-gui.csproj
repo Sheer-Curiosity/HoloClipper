@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{9836540C-CE9F-4C11-A25D-7766C608FAF5}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>GUITest1</RootNamespace>
+    <RootNamespace>GUI</RootNamespace>
     <AssemblyName>HoloClipper-GUI-v1.0-alpha-1</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

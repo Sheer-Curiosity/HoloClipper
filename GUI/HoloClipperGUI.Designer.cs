@@ -1,4 +1,4 @@
-﻿namespace GUITest1
+﻿namespace GUI
 {
     partial class HoloClipper
     {
@@ -49,6 +49,8 @@
             this.clipFromOtherSite = new System.Windows.Forms.CheckBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.label1 = new System.Windows.Forms.Label();
+            this.fileOutExtDropdown = new System.Windows.Forms.ComboBox();
+            this.clipOutExtLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // startClip
@@ -143,7 +145,7 @@
             // clipFromLocalFile
             // 
             this.clipFromLocalFile.AutoSize = true;
-            this.clipFromLocalFile.Location = new System.Drawing.Point(254, 212);
+            this.clipFromLocalFile.Location = new System.Drawing.Point(255, 212);
             this.clipFromLocalFile.Name = "clipFromLocalFile";
             this.clipFromLocalFile.Size = new System.Drawing.Size(117, 17);
             this.clipFromLocalFile.TabIndex = 9;
@@ -154,7 +156,7 @@
             // isHoloRewind
             // 
             this.isHoloRewind.AutoSize = true;
-            this.isHoloRewind.Location = new System.Drawing.Point(9, 189);
+            this.isHoloRewind.Location = new System.Drawing.Point(101, 212);
             this.isHoloRewind.Name = "isHoloRewind";
             this.isHoloRewind.Size = new System.Drawing.Size(135, 17);
             this.isHoloRewind.TabIndex = 10;
@@ -218,7 +220,7 @@
             // clipFromOtherSite
             // 
             this.clipFromOtherSite.AutoSize = true;
-            this.clipFromOtherSite.Location = new System.Drawing.Point(254, 189);
+            this.clipFromOtherSite.Location = new System.Drawing.Point(255, 189);
             this.clipFromOtherSite.Name = "clipFromOtherSite";
             this.clipFromOtherSite.Size = new System.Drawing.Size(149, 17);
             this.clipFromOtherSite.TabIndex = 17;
@@ -246,11 +248,38 @@
             this.label1.TabIndex = 19;
             this.label1.Text = "Created by Sheer Curiosity";
             // 
+            // fileOutExtDropdown
+            // 
+            this.fileOutExtDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.fileOutExtDropdown.FormattingEnabled = true;
+            this.fileOutExtDropdown.Items.AddRange(new object[] {
+            "mkv",
+            "mp4",
+            "avi",
+            "flv"});
+            this.fileOutExtDropdown.Location = new System.Drawing.Point(101, 187);
+            this.fileOutExtDropdown.Margin = new System.Windows.Forms.Padding(2);
+            this.fileOutExtDropdown.Name = "fileOutExtDropdown";
+            this.fileOutExtDropdown.Size = new System.Drawing.Size(62, 21);
+            this.fileOutExtDropdown.TabIndex = 20;
+            // 
+            // clipOutExtLabel
+            // 
+            this.clipOutExtLabel.AutoSize = true;
+            this.clipOutExtLabel.Location = new System.Drawing.Point(9, 191);
+            this.clipOutExtLabel.Name = "clipOutExtLabel";
+            this.clipOutExtLabel.Size = new System.Drawing.Size(91, 13);
+            this.clipOutExtLabel.TabIndex = 21;
+            this.clipOutExtLabel.Text = "Output Extension:";
+            this.clipOutExtLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // HoloClipper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(438, 285);
+            this.Controls.Add(this.clipOutExtLabel);
+            this.Controls.Add(this.fileOutExtDropdown);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.clipFromOtherSite);
@@ -303,6 +332,8 @@
         private System.Windows.Forms.CheckBox clipFromOtherSite;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox fileOutExtDropdown;
+        private System.Windows.Forms.Label clipOutExtLabel;
     }
 }
 
