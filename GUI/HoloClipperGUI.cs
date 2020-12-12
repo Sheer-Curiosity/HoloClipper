@@ -72,12 +72,10 @@ namespace GUI
                     var downloadDirSafe = downloadDir.Replace(" ", "` ");
                     Console.WriteLine(timestampsIn);
                     Console.WriteLine(downloadDir);
-                    System.Threading.Thread.Sleep(1000);
                     PowerShell ytdlTest = PowerShell.Create();
                     string cmd = $"./bin/clipper.exe -fulltitle {clipNameIn} -videotype a -hlrwstandards {hlrwStandard} -inlink {mediaLinkIn} -dlDir {downloadDirSafe} -timestampsIn {timestampsIn} -fileOutExt {fileOutExt}";
                     ytdlTest.AddScript(cmd);
                     ytdlTest.Invoke();
-                    MessageBox.Show("Clipping Complete!", "Notice");
                 }
                 else if (clipFromOtherSite.Checked == true)
                 {

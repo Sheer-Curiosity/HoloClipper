@@ -12,6 +12,7 @@ param (
 )
 $tempdir = [System.IO.Path]::GetTempPath()
 $tempdir = $tempdir.trim("\")
+Add-Type -AssemblyName PresentationCore,PresentationFramework
 function parser($clipstamps) {
     $clipTimestamps=$clipstamps.trim("[]")
         $clip1st1,$clip1st2=$clipTimestamps.split("-")
@@ -152,17 +153,30 @@ $clipper = {
     $clipnum = 0
     $clipnumout = 1
     $mapperNum = 0
-    write-host $parserNum
+    $ytdlAttempts = 0
     $clipStamps=$timestampsIn.split(",")
     if ($videotype -eq "A" -or $videotype -eq "a") {
-        $glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
-        while (!$glinks) {$glinks = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"}
+        while (!$glinks -and $ytdlAttempts -lt 5) {
+            $glinks = .\bin\youtube-dl.exe -g "$inlink"
+            $ytdlAttempts = $ytdlAttempts + 1
+        }
+        if ($ytdlAttempts -eq 5) {
+            [System.Windows.MessageBox]::Show("(videotype: a)`nError Fetching Direct File Links.`nVerify Inputted Media Link","Error",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Error)
+            Throw "ERROR: YTDL failed to fetch media links"
+        }
         $glink1,$glink2 = $glinks.split(" ")
         if (!$glink2) {$glink2 = $glink1}
     }
     if ($videotype -eq "B" -or $videotype -eq "b") {
         $glink = .\bin\youtube-dl.exe -g "$inlink"
-        while (!$glink) {$glink = .\bin\youtube-dl.exe -g "$inlink"}
+        while (!$glink-and $ytdlAttempts -lt 5) {
+            $glink = .\bin\youtube-dl.exe -g "$inlink"
+            $ytdlAttempts = $ytdlAttempts + 1
+        }
+        if ($ytdlAttempts -eq 5) {
+            [System.Windows.MessageBox]::Show("(videotype: b)`nError Fetching Direct File Links.`nVerify Inputted Media Link","Error",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Error)
+            Throw "ERROR: YTDL failed to fetch media links"
+        }
     }
     while ($parserNum -gt 0) {
         $parserOut = parser $clipStamps[$clipnum]
@@ -170,10 +184,16 @@ $clipper = {
         $clipsRt += $parserOut[1]
         if ($videotype -eq "A" -or $videotype -eq "a") {
             if ($miniclipnum -eq 1) {
-                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
+                    [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
+                }
+                else {
+                    [System.Windows.MessageBox]::Show("(videotype: $videotype)`nFile Clipping Unsuccessful.`nPlease Try Again.","Error",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Error)
+                }
             }
             if ($miniclipnum -ge 2) {
-                .\bin\ffmpeg.exe -y -hide_banner -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
                 $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\clip$clipnumout.mkv`" "
                 $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
                 $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
@@ -187,34 +207,70 @@ $clipper = {
         }
         if ($videotype -eq "B" -or $videotype -eq "b") {
             if ($miniclipnum -eq 1) {
-                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
+                    [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
+                }
+                else {
+                    [System.Windows.MessageBox]::Show("(videotype: $videotype)`nFile Clipping Unsuccessful.`nPlease Try Again.","Error",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Error)
+                }
             }
             if ($miniclipnum -ge 2) {
-                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+                $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\clip$clipnumout.mkv`" "
+                $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
+                $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
+                if (($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") -and ($parsernum -gt 1)) {
+                    $mapperNum = $mapperNum + 1
+                    $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\blackscreen.mkv`" "
+                    $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
+                    $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
+                }
             }
         }
         if ($videotype -eq "C" -or $videotype -eq "c") {
             if ($miniclipnum -eq 1) {
-                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
+                    [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
+                }
+                else {
+                    [System.Windows.MessageBox]::Show("(videotype: $videotype)`nFile Clipping Unsuccessful.`nPlease Try Again.","Error",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Error)
+                }
             }
             if ($miniclipnum -ge 2) {
-                .\bin\ffmpeg.exe -y -hide_banner  -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+                $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\clip$clipnumout.mkv`" "
+                $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
+                $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
+                if (($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") -and ($parsernum -gt 1)) {
+                    $mapperNum = $mapperNum + 1
+                    $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\blackscreen.mkv`" "
+                    $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
+                    $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
+                }
             }
         }
-        $mapperNum = $mapperNum + 1
-        $clipnum = $clipnum + 1
-        $clipnumout = $clipnumout + 1
-        $parserNum = $parserNum - 1
+        $mapperNum ++
+        $clipnum ++
+        $clipnumout ++
+        $parserNum --
     }
     $stitchCmdMapInputs = $stitchCmdMapInputs + "concat=n=$stitchCmdMapInputsCount`:v=1:a=1[outv][outa]"
-    $stitchCmd = ".\bin\ffmpeg.exe -y -hide_banner $stitchCmdInputs -filter_complex `"$stitchCmdMapInputs`" -map `"[outv]`" -map `"[outa]`" -x264-params keyint=24:min-keyint=1 `"$dlDir\$fulltitle.$fileOutExt`""
+    $stitchCmd = ".\bin\ffmpeg.exe -y -hide_banner -loglevel error $stitchCmdInputs -filter_complex `"$stitchCmdMapInputs`" -map `"[outv]`" -map `"[outa]`" -x264-params keyint=24:min-keyint=1 `"$dlDir\$fulltitle.$fileOutExt`""
     if ($needsstitching -eq "Y" -or $needsstitching -eq "y") {
         if ($miniclipnum -ge 2) {
             if ($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") {
                 $clipresolution = ffprobe.exe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$tempdir\clip1.mkv"
-                .\bin\ffmpeg.exe -y -hide_banner  -f lavfi -i color=black:s="$clipresolution":r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 "$tempdir\blackscreen.mkv"
+                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -f lavfi -i color=black:s="$clipresolution":r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 "$tempdir\blackscreen.mkv"
             }
             Invoke-Expression $stitchCmd
+            if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
+                [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
+            }
+            else {
+                [System.Windows.MessageBox]::Show("(videotype: $videotype)`nFile Clipping Unsuccessful.`nPlease Try Again.","Error",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Error)
+            }
             $parsernum = $miniclipnum
             $clipnumout = 1
             if ($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") {
@@ -222,22 +278,12 @@ $clipper = {
             }
             while ($parserNum -gt 0) {
                 remove-Item -path "$tempdir\clip$clipnumout.mkv"
-                $clipnumout = $clipnumout + 1
-                $parserNum = $parserNum - 1
+                $clipnumout ++
+                $parserNum --
             }
         }
         else {return}
     }
     else {return}
 }
-write-host $fulltitle
-write-host $videotype
-write-host $hlrwStandards
-write-host $inlink
-write-host $miniclip
-write-host $tempfile
-write-host $dlDir
-write-host $timestampsIn
-write-host $needsstitching
-write-host $tempdir
 &$clipper
