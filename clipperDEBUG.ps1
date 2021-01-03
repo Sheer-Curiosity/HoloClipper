@@ -184,7 +184,7 @@ $clipper = {
         $clipsRt += $parserOut[1]
         if ($videotype -eq "A" -or $videotype -eq "a") {
             if ($miniclipnum -eq 1) {
-                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
                 if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
                     [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
                 }
@@ -193,7 +193,7 @@ $clipper = {
                 }
             }
             if ($miniclipnum -ge 2) {
-                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+                .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
                 $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\clip$clipnumout.mkv`" "
                 $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
                 $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
@@ -207,7 +207,7 @@ $clipper = {
         }
         if ($videotype -eq "B" -or $videotype -eq "b") {
             if ($miniclipnum -eq 1) {
-                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
                 if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
                     [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
                 }
@@ -216,7 +216,7 @@ $clipper = {
                 }
             }
             if ($miniclipnum -ge 2) {
-                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+                .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
                 $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\clip$clipnumout.mkv`" "
                 $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
                 $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
@@ -230,7 +230,7 @@ $clipper = {
         }
         if ($videotype -eq "C" -or $videotype -eq "c") {
             if ($miniclipnum -eq 1) {
-                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
                 if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
                     [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
                 }
@@ -239,7 +239,7 @@ $clipper = {
                 }
             }
             if ($miniclipnum -ge 2) {
-                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+                .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
                 $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\clip$clipnumout.mkv`" "
                 $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
                 $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
@@ -262,7 +262,7 @@ $clipper = {
         if ($miniclipnum -ge 2) {
             if ($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") {
                 $clipresolution = ffprobe.exe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$tempdir\clip1.mkv"
-                .\bin\ffmpeg.exe -y -hide_banner -loglevel panic -f lavfi -i color=black:s="$clipresolution":r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 "$tempdir\blackscreen.mkv"
+                .\bin\ffmpeg.exe -y -f lavfi -i color=black:s="$clipresolution":r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 "$tempdir\blackscreen.mkv"
             }
             Invoke-Expression $stitchCmd
             if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
