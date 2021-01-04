@@ -1,3 +1,4 @@
+#May his soul help anyone trying to sift their way through this garbage heap of a script.
 param (
     [string]$fulltitle = "output",
     [string]$videotype = $null,
@@ -158,6 +159,7 @@ $clipper = {
     if ($videotype -eq "A" -or $videotype -eq "a") {
         while (!$glinks -and $ytdlAttempts -lt 5) {
             $glinks = .\bin\youtube-dl.exe -g "$inlink"
+            $glinksBACKUP = .\bin\youtube-dl.exe -g --youtube-skip-dash-manifest "$inlink"
             $ytdlAttempts = $ytdlAttempts + 1
         }
         if ($ytdlAttempts -eq 5) {
@@ -165,7 +167,9 @@ $clipper = {
             Throw "ERROR: YTDL failed to fetch media links"
         }
         $glink1,$glink2 = $glinks.split(" ")
+        $glinkBACK1,$glinkBACK2 = $glinksBACKUP.split(" ")
         if (!$glink2) {$glink2 = $glink1}
+        if (!$glinkBACK2) {$glinkBACK2 = $glinkBACK1}
     }
     if ($videotype -eq "B" -or $videotype -eq "b") {
         $glink = .\bin\youtube-dl.exe -g "$inlink"
@@ -185,30 +189,55 @@ $clipper = {
         if ($videotype -eq "A" -or $videotype -eq "a") {
             if ($miniclipnum -eq 1) {
                 .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
-                if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
+                if ((Test-Path("$dlDir\$fulltitle.$fileOutExt")) -eq $true) {
                     [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
                 }
                 else {
-                    [System.Windows.MessageBox]::Show("(videotype: $videotype)`nFile Clipping Unsuccessful.`nPlease Try Again.","Error",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Error)
+                    .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($glinkBACK1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glinkBACK2) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
+                    if ((Test-Path("$dlDir\$fulltitle.$fileOutExt")) -eq $true) {
+                        [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
+                    }
+                    else {
+                        [System.Windows.MessageBox]::Show("(videotype: $videotype)`nFile Clipping Unsuccessful.`nPlease Try Again.`nNOTE: This error may be due to an oversized dash manifest`nfrom the source video.","Error",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Error)
+                    }
                 }
             }
             if ($miniclipnum -ge 2) {
                 .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
-                $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\clip$clipnumout.mkv`" "
-                $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
-                $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
-                if (($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") -and ($parsernum -gt 1)) {
-                    $mapperNum = $mapperNum + 1
-                    $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\blackscreen.mkv`" "
+                if ((Test-Path("$tempdir\clip$clipnumout.mkv")) -eq $true) {
+                    $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\clip$clipnumout.mkv`" "
                     $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
                     $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
+                    if (($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") -and ($parsernum -gt 1)) {
+                        $mapperNum = $mapperNum + 1
+                        $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\blackscreen.mkv`" "
+                        $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
+                        $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
+                    }
+                }
+                else {
+                    .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($glink1) -t $clipsRt[$clipnum] -ss $clipsSps[$clipnum] -i ($glink2) -t $clipsRt[$clipnum] "$tempdir\clip$clipnumout.mkv"
+                    if ((Test-Path("$tempdir\clip$clipnumout.mkv")) -eq $true) {
+                        $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\clip$clipnumout.mkv`" "
+                        $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
+                        $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
+                        if (($hlrwStandards -eq "Y" -or $hlrwStandards -eq "y") -and ($parsernum -gt 1)) {
+                            $mapperNum = $mapperNum + 1
+                            $stitchCmdInputs = $stitchCmdInputs + "-i `"$tempdir\blackscreen.mkv`" "
+                            $stitchCmdMapInputs = $stitchCmdMapInputs + "[$mapperNum`:v:0][$mapperNum`:a:0]"
+                            $stitchCmdMapInputsCount = $stitchCmdMapInputsCount + 1
+                        }
+                    }
+                    else {
+                        [System.Windows.MessageBox]::Show("(videotype: $videotype)`nFile Clipping Unsuccessful.`nPlease Try Again.","Error",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Error)
+                    }
                 }
             }
         }
         if ($videotype -eq "B" -or $videotype -eq "b") {
             if ($miniclipnum -eq 1) {
                 .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($glink) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
-                if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
+                if ((Test-Path("$dlDir\$fulltitle.$fileOutExt")) -eq $true) {
                     [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
                 }
                 else {
@@ -231,7 +260,7 @@ $clipper = {
         if ($videotype -eq "C" -or $videotype -eq "c") {
             if ($miniclipnum -eq 1) {
                 .\bin\ffmpeg.exe -y -ss $clipsSps[$clipnum] -i ($tempfile) -t $clipsRt[$clipnum] "$dlDir\$fulltitle.$fileOutExt"
-                if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
+                if ((Test-Path("$dlDir\$fulltitle.$fileOutExt")) -eq $true) {
                     [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
                 }
                 else {
@@ -265,7 +294,7 @@ $clipper = {
                 .\bin\ffmpeg.exe -y -f lavfi -i color=black:s="$clipresolution":r=30000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 3 "$tempdir\blackscreen.mkv"
             }
             Invoke-Expression $stitchCmd
-            if ([System.IO.File]::Exists("$dlDir\$fulltitle.$fileOutExt") -eq $true) {
+            if ((Test-Path("$dlDir\$fulltitle.$fileOutExt")) -eq $true) {
                 [System.Windows.MessageBox]::Show("(videotype: $videotype)`nClipping Complete","Notice",[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Asterisk)
             }
             else {
