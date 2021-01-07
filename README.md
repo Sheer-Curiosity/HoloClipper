@@ -1,5 +1,5 @@
 # !!IMPORTANT!!
 So, apparently windows recognizes clipper.exe as a harmful program. Believe me, it's not. You can check the source code right here on this repo. All it is is clippser.ps1 compiled into a windows executable by PS2EXE. If you don't believe me, feel free to compile clipper.ps1 yourself and replace clipper.exe in the release folder. Bottom line is, even if windows gives you a warning, the program's fine.
 
-# Introduction
-This is a project that was spawned from the "HoloRewind 2020" collaboration project between Hololive Resistance and Aōnahara Translations. I volunteered to help download clips for the project, and quickly found myself in need of a tool that could download a portion of not only YouTube videos, but also videos from sites like BiliBili and archives like v.ikx. On top of that, HoloRewind had its own unique standards for downloading clips that other clipping utilities did not have. Thus, I spent a grand total of 5 days both teaching myself PowerShell scripting and creating the very first version of what is now this project.
+# Big Things Are Coming
+I plan to recreate HoloClipper from the ground up, this time using C++ to both run the GUI and handle the automation of ffmpeg and ytdl. Of course, I'm still a beginner when it comes to C++. But I've never let that stop me before. Here's to a brigter future, and a better HoloClipper.
